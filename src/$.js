@@ -6,15 +6,18 @@ import { createCache } from "./core/cache.js";
 
 const
 
-	getTempCache = createCache((s) => {
+	getLiteralTempCache = createCache((s) => {
+
 		const code = createSignature();
+
 		return [s.join(code), new RegExp(code, "g")]
+
 	}),
 
 	createTemp = (s, v) => {
 
 		const
-			[temp, tempMatcherRegex] = getTempCache(s),
+			[temp, tempMatcherRegex] = getLiteralTempCache(s),
 			vMap = v.map((vt, i) => (
 				isPointer(vt)
 					? vt.watch(() => (vMap[i] = vt.$, ptr.$ = refreshTemp())).$

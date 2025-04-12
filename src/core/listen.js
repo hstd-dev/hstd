@@ -1,8 +1,10 @@
+import { createCache } from "./cache.js";
+
 let registeredEvent = "\0";
 
 const
 
-	targetMap = new WeakMap(),
+	targetCache = createCache(() => ({})),
 
 	/**
 	 * @param { string } eventName
@@ -14,17 +16,18 @@ const
 	listen = function (eventName, callbackFn, ref) {
 
 		if(!registeredEvent.includes(`\0${eventName}\0`)) {
+
 			globalThis.addEventListener(
 				eventName,
-				e => targetMap.get(e.target)?.[eventName]?.forEach(x => x(e)),
+				e => targetCache(e.target)[eventName]?.forEach?.(x => x(e)),
 				{ passive: !0 }
 			);
+
 			registeredEvent += eventName + "\0";
+
 		};
 
-		if(!targetMap.has(ref)) targetMap.set(ref, {});
-
-		(targetMap.get(ref)[eventName] ||= []).push(callbackFn);
+		(targetCache(ref)[eventName] ||= []).push(callbackFn);
 
 	}
 ;
