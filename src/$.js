@@ -35,6 +35,8 @@ const
 		{
 			get: (_, prop) => {
 
+				if(prop === Symbol.hasInstance) return isPointer;
+
 				let tmp = globalPropPtrCache[prop];
 
 				if(!tmp && globalPropCaptureTarget.includes(`\0${prop}\0`)) {
