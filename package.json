@@ -1,6 +1,6 @@
 {
   "name": "hstd",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "simple library to build reactive, extensive, reusable web interface.",
   "type": "module",
   "main": "./src/mod.js",
@@ -10,12 +10,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ihasq/hstd.git"
+    "url": "git+https://github.com/hstd-dev/hstd.git"
   },
   "author": "ihasq",
-  "license": "WTFPL",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ihasq/hstd/issues"
+    "url": "https://github.com/hstd-dev/hstd/issues"
   },
   "exports": {
     ".": "./src/mod.js"
