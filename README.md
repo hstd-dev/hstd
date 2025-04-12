@@ -110,4 +110,4 @@ function Canvas() {
 
 ## License
 
-hstd is [WTFPL licensed](LICENSE).
+hstd is [MIT licensed](LICENSE).

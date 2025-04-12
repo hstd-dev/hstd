@@ -1,4 +1,4 @@
-import { isPtr } from "./$.js";
+import { isPtr, isConstructedFrom } from "./$.js";
 import { aEL } from "./on.js";
 
 const
@@ -31,10 +31,7 @@ const
 
 			const targetValue = target[prop];
 
-			return (
-				typeof targetValue == "function" &&
-				targetValue.toString().endsWith("() { [native code] }")
-			)
+			return isConstructedFrom(targetValue, Function)
 				? targetValue.bind(target)
 				: targetValue
 			;
@@ -151,10 +148,10 @@ export const h = (s, ...v) => {
 		let
 			joined = s.join(""),
 			replacementCounter = 0,
-			tokenBuf
+			tokenBuf = "t"
 		;
 
-		while(joined.includes(tokenBuf = "t" + (BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)) ** 8n).toString(36)));
+		while(joined.includes(tokenBuf += BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)).toString(36)));
 
 		joined = s.join(tokenBuf);
 

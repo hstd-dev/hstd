@@ -234,8 +234,7 @@ const
 				get(_, prop, reciever) {
 
 					const
-						[tmp] = buffer,
-						typeofProp = typeof prop
+						[tmp] = buffer
 					;
 
 					return (
@@ -369,4 +368,4 @@ Object.defineProperty(globalThis, signature, {
  * @param { object } options 
  * @returns { object }
  */
-export { $, isPtr, createPtr };
+export { $, isPtr, createPtr, isConstructedFrom };
