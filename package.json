@@ -1,6 +1,6 @@
 {
   "name": "hstd",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "simple library to build reactive, extensive, reusable web interface.",
   "type": "module",
   "main": "./src/mod.js",
