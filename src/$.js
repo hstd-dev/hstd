@@ -1,8 +1,7 @@
 import { listen } from "./core/listen.js";
-
 import { createPointer, createSignature, isPointer } from "./core/pointer.js";
-
 import { isFrozenArray } from "./core/checker.js";
+
 
 const
 
@@ -30,6 +29,7 @@ const
 
 	globalPropCaptureTarget = "\0innerWidth\0innerHeight\0outerWidth\0outerHeight\0",
 
+
 	$ = new Proxy(
 		(x, ...y) => (isFrozenArray(x) && isFrozenArray(x?.raw) ? createTemp : createPointer)(x, y),
 		{
@@ -37,19 +37,16 @@ const
 
 				let tmp = globalPropPtrCache[prop];
 
-				if(!tmp) {
+				if(!tmp && globalPropCaptureTarget.includes(`\0${prop}\0`)) {
 
-					if(globalPropCaptureTarget.includes(`\0${tmp}\0`)) {
+					tmp = globalPropPtrCache[prop] = createPointer(globalThis[prop]);
 
-						tmp = globalPropPtrCache[prop] = createPointer(globalThis[prop], void 0, { writable: false });
+					listen(
+						"resize",
+						({ target }) => tmp.$ = target[prop],
+						globalThis,
+					);
 
-						listen(
-							window,
-							"resize",
-							() => tmp.$ = globalThis[prop]
-						)
-
-					};
 				}
 
 				return tmp || globalPtr[prop];
@@ -58,20 +55,6 @@ const
 		}
 	)
 ;
-
-// [
-
-// 	["innerWidth\0innerHeight\0outerWidth\0outerHeight", "resize"]
-
-// ].forEach((props, eventType) => {
-
-// 	aEL(
-// 		globalThis,
-// 		eventType,
-// 		() => props.forEach(prop => globalPropPtrCache[prop].$ = globalThis[prop])
-// 	)
-
-// });
 
 const globalPtr = createPointer(globalThis);
 
