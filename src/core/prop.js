@@ -1,4 +1,4 @@
-import { createPtr } from "./$.js"
+import { createPointer } from "./pointer.js"
 
 /**
  * 
@@ -16,16 +16,16 @@ export const prop = (callback, nameFn) => {
 				return (
 					prop === Symbol.toPrimitive	? publisher
 					: prop === "$"				? publisher()
-					:							(cache[prop] ||= createPtr(callback.bind(null, prop), undefined, { name: nameFn ? nameFn(prop) : "" })).publish()
+					:							(cache[prop] ||= createPointer(callback.bind(null, prop), undefined, { name: nameFn ? nameFn(prop) : "" })).publish()
 				)
 			}
 		}),
 
-		bundled = createPtr((value) => {
+		bundled = createPointer((value) => {
 
 			const buf = {};
 
-			Object.keys(value).forEach((prop) => buf[proxy[prop]] = value[prop]);
+			Reflect.ownKeys(value).forEach((prop) => buf[proxy[prop]] = value[prop]);
 
 			return buf;
 

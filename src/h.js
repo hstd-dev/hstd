@@ -1,5 +1,6 @@
-import { isPtr, isConstructedFrom } from "./$.js";
-import { aEL } from "./on.js";
+import { isPointer } from "./core/pointer.js";
+import { isConstructedFrom } from "./core/checker.js";
+import { listen } from "./core/listen.js";
 
 const
 
@@ -52,7 +53,7 @@ const
 		if(attrPropType == "symbol") {
 
 			const attrPtr = globalThis[attrProp.description.slice(0, 52)]?.(attrProp);
-			if(!isPtr(attrPtr)) return;
+			if(!isPointer(attrPtr)) return;
 			
 			const buf = attrPtr.$(attrValue, ref);
 			if(buf?.constructor !== Object) return;
@@ -61,11 +62,11 @@ const
 
 		} else if(attrPropType == "string") {
 
-			if(isPtr(attrValue)) {
+			if(isPointer(attrValue)) {
 
 				ref[attrProp] = attrValue.watch($ => ref[attrProp] = $).$;
 
-				if("\0value\0checked\0".includes(`\0${attrProp}\0`) && attrProp in ref) aEL(
+				if("\0value\0checked\0".includes(`\0${attrProp}\0`) && attrProp in ref) listen(
 					"input",
 					({ target: { [attrProp]: value } }) => attrValue.$ = (
 						"number\0range".includes(ref.type)
@@ -99,7 +100,7 @@ const
 
 			ref.replaceWith(...(
 				vBody[Symbol.toPrimitive]?.(HTML_IDENTIFIER)	? vBody
-				: isPtr(vBody)									? vBody.text()
+				: isPointer(vBody)									? vBody.text()
 				:												[new Text(vBody)]
 			));
 
