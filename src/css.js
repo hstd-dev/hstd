@@ -1,5 +1,5 @@
-import { isPointer } from "./core/pointer.js"
 import { prop } from "./core/prop.js";
+import { isPointer } from "./core/pointer.js"
 
 const
 

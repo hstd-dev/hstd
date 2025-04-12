@@ -1,5 +1,5 @@
-import { listen } from "./core/listen.js";
 import { prop } from "./core/prop.js";
+import { listen } from "./core/listen.js";
 
 const
 

@@ -1,8 +1,7 @@
 import { listen } from "./core/listen.js";
-import { createPointer, createSignature, isPointer } from "./core/pointer.js";
-import { isFrozenArray, isConstructedFrom } from "./core/checker.js";
 import { createCache } from "./core/cache.js";
-
+import { isFrozenArray, isConstructedFrom } from "./core/checker.js";
+import { createPointer, createSignature, isPointer } from "./core/pointer.js";
 
 const
 
