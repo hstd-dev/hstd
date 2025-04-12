@@ -1,12 +1,11 @@
 import { isPointer } from "./core/pointer.js";
 import { isConstructedFrom } from "./core/checker.js";
 import { listen } from "./core/listen.js";
+import { createCache } from "./core/cache.js";
 
 const
 
 	HTML_IDENTIFIER = Symbol.for("HTML_IDENTIFIER"),
-
-	elementTempMap = new WeakMap(),
 
 	df = document.createDocumentFragment(),
 
@@ -100,7 +99,7 @@ const
 
 			ref.replaceWith(...(
 				vBody[Symbol.toPrimitive]?.(HTML_IDENTIFIER)	? vBody
-				: isPointer(vBody)									? vBody.text()
+				: isPointer(vBody)								? vBody.text()
 				:												[new Text(vBody)]
 			));
 
@@ -130,21 +129,9 @@ const
 			}
 	
 		);
-	}
-;
+	},
 
-/**
- * @param { TemplateStringsArray } s
- * @param { (string | number | { [key: (string | symbol)]: any })[] } v
- * 
- * @returns { NodeList }
- */
-
-export const h = (s, ...v) => {
-
-	let createElementTemp = elementTempMap.get(s);
-
-	if(!createElementTemp) {
+	getHTMLTempCache = createCache((s) => {
 
 		let
 			joined = s.join(""),
@@ -174,8 +161,16 @@ export const h = (s, ...v) => {
 				: `<br ${tokenBuf}>`
 		);
 
-		elementTempMap.set(s, createElementTemp = elementTempBase.bind(null, [tokenBuf, placeholder, node.cloneNode.bind(node, !0)]))
-	};
+		return elementTempBase.bind(null, [tokenBuf, placeholder, node.cloneNode.bind(node, !0)]);
 
-	return createElementTemp(v)
-};
+	})
+;
+
+/**
+ * @param { TemplateStringsArray } s
+ * @param { (string | number | { [key: (string | symbol)]: any })[] } v
+ * 
+ * @returns { NodeList }
+ */
+
+export const h = (s, ...v) => getHTMLTempCache(s)(v);

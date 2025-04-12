@@ -1,16 +1,20 @@
 import { listen } from "./core/listen.js";
 import { createPointer, createSignature, isPointer } from "./core/pointer.js";
-import { isFrozenArray } from "./core/checker.js";
+import { isFrozenArray, isConstructedFrom } from "./core/checker.js";
+import { createCache } from "./core/cache.js";
 
 
 const
 
+	getTempCache = createCache((s) => {
+		const code = createSignature();
+		return [s.join(code), new RegExp(code, "g")]
+	}),
+
 	createTemp = (s, v) => {
 
 		const
-			code = createSignature(),
-			temp = s.join(code),
-			tempMatcherRegex = new RegExp(code, "g"),
+			[temp, tempMatcherRegex] = getTempCache(s),
 			vMap = v.map((vt, i) => (
 				isPointer(vt)
 					? vt.watch(() => (vMap[i] = vt.$, ptr.$ = refreshTemp())).$
@@ -29,6 +33,9 @@ const
 
 	globalPropCaptureTarget = "\0innerWidth\0innerHeight\0outerWidth\0outerHeight\0",
 
+	// valueFetcherRAFCallback = () => {
+		
+	// }
 
 	$ = new Proxy(
 		(x, ...y) => (isFrozenArray(x) && isFrozenArray(x?.raw) ? createTemp : createPointer)(x, y),
@@ -39,7 +46,7 @@ const
 
 				let tmp = globalPropPtrCache[prop];
 
-				if(!tmp && globalPropCaptureTarget.includes(`\0${prop}\0`)) {
+				if(!tmp && !isConstructedFrom(globalThis[prop], Function)) {
 
 					tmp = globalPropPtrCache[prop] = createPointer(globalThis[prop]);
 
