@@ -1,3 +1,5 @@
 dev
 docs
 .gitignore
+deno.json
+deno.lock
