@@ -1,5 +1,7 @@
 const
 
+	createSignature = () => String.fromCharCode(...resolverSignatureGenCB()),
+
 	publishedPtr = {},
 
 	resolverSignatureGenCB = function*(length = 52) {
@@ -8,9 +10,22 @@ const
 			let buf = Math.floor(Math.random() * 31)
 			yield 0x7f + buf + (buf > 0x8d) + (buf > 0x9c)
 		};
-	},
+	}
+;
 
-	createSignature = () => String.fromCharCode(...resolverSignatureGenCB()),
+let signature;
+
+while((signature = createSignature()) in globalThis);
+
+Object.defineProperty(globalThis, signature, {
+	value: (symbol) => publishedPtr[symbol],
+	configurable: !1,
+	enumerable: !1
+});
+
+const
+
+	{ Promise, Function } = globalThis,
 
 	PTR_IDENTIFIER = Symbol.for("PTR_IDENTIFIER"),
 
@@ -18,7 +33,7 @@ const
 
 	isConstructedFrom = (object, proto) => object?.constructor === proto,
 
-	isFrozenArray = (arr) => Object.isFrozen(arr) && Array.isArray(arr),
+	isFrozenArray = (arr) => Object.isFrozen(arr) && isConstructedFrom(arr, Array),
 
 	logicOps = {
 		or:						(a, b) => a || b,
@@ -44,7 +59,7 @@ const
 
 				return (
 					typeof hint === "string"
-						? hint === "string" && typeof value == "function"
+						? hint === "string" && isConstructedFrom(value, Function)
 							? this.publish()
 							: value.toString()
 						: hint === PTR_IDENTIFIER
@@ -79,9 +94,19 @@ const
 
 			into([value], transformerFn = $ => $) {
 
-				const newPtr = createPtr(transformerFn(value))
+				const
+					binder = value => {
+						const tmp = transformerFn(value);
+						return isConstructedFrom(tmp, Promise)
+							? (tmp.then($ => newPtr.$ = $), undefined)
+							: newPtr.$ = tmp;
+					},
+					newPtr = createPtr()
+				;
 
-				this.watch($ => newPtr.$ = transformerFn($));
+				binder(value);
+
+				this.watch(binder);
 
 				return newPtr;
 			},
@@ -90,7 +115,7 @@ const
 
 				return new Promise(r => {
 
-					const watcherFn = $ => (typeof value == "function" ? value($) : $ === value)
+					const watcherFn = $ => (isConstructedFrom(value, Function) ? value($) : $ === value)
 						? (this.abort(watcherFn), r(this))
 						: 0
 					;
@@ -99,15 +124,6 @@ const
 
 				})
 			},
-
-			// refresh(buffer) {
-			// 	buffer[4]?.(0, true, this);
-			// 	return this;
-			// },
-
-			// sync(buffer, ...ptrs) {
-			// 	ptrs.forEach(ptr => isPtr(ptr) ? ptr.watch($ => this.$ = this.$) : 0)
-			// },
 
 			switch() {
 
@@ -168,7 +184,21 @@ const
 
 				return [text]
 
-			}
+			},
+
+			timeout(_, delay) {
+
+				const ptr = createPtr(this.$);
+				let timeoutIdBuf;
+
+				this.watch($ => {
+					clearTimeout(timeoutIdBuf);
+					timeoutIdBuf = setTimeout(() => ptr.$ = $, isPtr(delay) ? delay.$ : delay)
+				})
+
+				return ptr;
+
+			},
 		},
 
 		...Object.keys(logicOps).map(op => ({
@@ -214,8 +244,7 @@ const
 				value,
 				watchers,
 				watcherInfo,
-				signature + (options?.name || ""),
-				execWatcher
+				signature + (options?.name || "")
 			]
 		;
 
@@ -238,12 +267,7 @@ const
 					;
 
 					return (
-
-						// typeofProp == "string"
-
-							// string
-
-							/**? */ prop === "$"											? tmp
+							prop === "$"											? tmp
 							: prop === "refresh"									? execWatcher.bind(null, tmp, !0, reciever)
 							: prop === "constructor"								? !0
 
@@ -348,18 +372,15 @@ const
 
 	// },
 
-	$ = (x, ...y) => (isFrozenArray(x) && isFrozenArray(x?.raw) ? createTemp : createPtr)(x, y)
+	globalPtr = createPtr(globalThis),
+
+	$ = new Proxy(
+		(x, ...y) => (isFrozenArray(x) && isFrozenArray(x?.raw) ? createTemp : createPtr)(x, y),
+		{
+			get: (_, prop) => globalPtr[prop]
+		}
+	)
 ;
-
-let signature;
-
-while((signature = createSignature()) in globalThis);
-
-Object.defineProperty(globalThis, signature, {
-	value: (symbol) => publishedPtr[symbol],
-	configurable: !1,
-	enumerable: !1
-});
 
 /**
  * 
