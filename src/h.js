@@ -1,11 +1,11 @@
-import { isPtr } from "./$.js";
-import { aEL } from "./on.js";
+import { listen } from "./core/listen.js";
+import { isPointer } from "./core/pointer.js";
+import { createCache } from "./core/cache.js";
+import { isConstructedFrom } from "./core/checker.js";
 
 const
 
 	HTML_IDENTIFIER = Symbol.for("HTML_IDENTIFIER"),
-
-	elementTempMap = new WeakMap(),
 
 	df = document.createDocumentFragment(),
 
@@ -31,10 +31,7 @@ const
 
 			const targetValue = target[prop];
 
-			return (
-				typeof targetValue == "function" &&
-				targetValue.toString().endsWith("() { [native code] }")
-			)
+			return isConstructedFrom(targetValue, Function)
 				? targetValue.bind(target)
 				: targetValue
 			;
@@ -55,7 +52,7 @@ const
 		if(attrPropType == "symbol") {
 
 			const attrPtr = globalThis[attrProp.description.slice(0, 52)]?.(attrProp);
-			if(!isPtr(attrPtr)) return;
+			if(!isPointer(attrPtr)) return;
 			
 			const buf = attrPtr.$(attrValue, ref);
 			if(buf?.constructor !== Object) return;
@@ -64,11 +61,11 @@ const
 
 		} else if(attrPropType == "string") {
 
-			if(isPtr(attrValue)) {
+			if(isPointer(attrValue)) {
 
 				ref[attrProp] = attrValue.watch($ => ref[attrProp] = $).$;
 
-				if("\0value\0checked\0".includes(`\0${attrProp}\0`) && attrProp in ref) aEL(
+				if("\0value\0checked\0".includes(`\0${attrProp}\0`) && attrProp in ref) listen(
 					"input",
 					({ target: { [attrProp]: value } }) => attrValue.$ = (
 						"number\0range".includes(ref.type)
@@ -102,7 +99,7 @@ const
 
 			ref.replaceWith(...(
 				vBody[Symbol.toPrimitive]?.(HTML_IDENTIFIER)	? vBody
-				: isPtr(vBody)									? vBody.text()
+				: isPointer(vBody)								? vBody.text()
 				:												[new Text(vBody)]
 			));
 
@@ -132,29 +129,17 @@ const
 			}
 	
 		);
-	}
-;
+	},
 
-/**
- * @param { TemplateStringsArray } s
- * @param { (string | number | { [key: (string | symbol)]: any })[] } v
- * 
- * @returns { NodeList }
- */
-
-export const h = (s, ...v) => {
-
-	let createElementTemp = elementTempMap.get(s);
-
-	if(!createElementTemp) {
+	getHTMLTempCache = createCache((s) => {
 
 		let
 			joined = s.join(""),
 			replacementCounter = 0,
-			tokenBuf
+			tokenBuf = "t"
 		;
 
-		while(joined.includes(tokenBuf = "t" + (BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)) ** 8n).toString(36)));
+		while(joined.includes(tokenBuf += BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)).toString(36)));
 
 		joined = s.join(tokenBuf);
 
@@ -176,8 +161,16 @@ export const h = (s, ...v) => {
 				: `<br ${tokenBuf}>`
 		);
 
-		elementTempMap.set(s, createElementTemp = elementTempBase.bind(null, [tokenBuf, placeholder, node.cloneNode.bind(node, !0)]))
-	};
+		return elementTempBase.bind(null, [tokenBuf, placeholder, node.cloneNode.bind(node, !0)]);
 
-	return createElementTemp(v)
-};
+	})
+;
+
+/**
+ * @param { TemplateStringsArray } s
+ * @param { (string | number | { [key: (string | symbol)]: any })[] } v
+ * 
+ * @returns { NodeList }
+ */
+
+export const h = (s, ...v) => getHTMLTempCache(s)(v);

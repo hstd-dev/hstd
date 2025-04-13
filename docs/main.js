@@ -105,7 +105,7 @@ export default function() {
 			</div>
 
 			<div ${{ [css.margin]: "40px 0 0" }}>
-				Hstd = HyperStandard is a minimal JavaScript library to build simple, reactive, extensible web interface. 
+				<b>hstd</b> = HyperStandard is a minimal JavaScript library to build simple, reactive, extensible web interface. 
 			</div>
 
 			<div ${{ [css.margin]: "20px 0 0" }}>
@@ -131,7 +131,7 @@ export default function() {
 			<div ${{ [css.margin]: "60px 0" }}>
 				<h2 ${{ [css.fontFamily]: 'Courier New' }}>License</h2>
 
-				Hstd is ${Link("https://www.wtfpl.net", "WTFPL licensed")}.
+				hstd is ${Link("https://opensource.org/license/mit", "MIT licensed")}.
 			</div>
 
 	`;

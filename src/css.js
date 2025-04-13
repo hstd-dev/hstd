@@ -1,5 +1,5 @@
-import { isPtr } from "./$.js"
-import { prop } from "./prop.js";
+import { prop } from "./core/prop.js";
+import { isPointer } from "./core/pointer.js"
 
 const
 
@@ -23,7 +23,7 @@ const
 
 				formedStylePropBuf,
 
-				isPtr(styleValue)
+				isPointer(styleValue)
 					? styleValue.watch($ => styleDec.setProperty(formedStylePropBuf, $)).$
 					: styleValue
 			)
