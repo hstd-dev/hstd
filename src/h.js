@@ -1,6 +1,6 @@
 import { listen } from "./core/listen.js";
 import { isPointer } from "./core/pointer.js";
-import { createCache } from "./core/cache.js";
+import { createWeakCache } from "./core/cache.js";
 import { isConstructedFrom } from "./core/checker.js";
 
 const
@@ -65,23 +65,29 @@ const
 
 				ref[attrProp] = attrValue.watch($ => ref[attrProp] = $).$;
 
-				if("\0value\0checked\0".includes(`\0${attrProp}\0`) && attrProp in ref) listen(
-					"input",
-					({ target: { [attrProp]: value } }) => attrValue.$ = (
-						"number\0range".includes(ref.type)
-							? Number(value)
-							: value
-					),
-					ref
-				);
+				if("\0value\0checked\0".includes(`\0${attrProp}\0`) && attrProp in ref) {
 
-			} else if(attrProp == "id" && !(attrValue in id)) {
+					listen(
+						"input",
+						({ target: { [attrProp]: value } }) => attrValue.$ = (
+							"number\0range".includes(ref.type)
+								? Number(value)
+								: value
+						),
+						ref
+					)
 
-				id[attrValue] = new Proxy(ref, refProxyHandler);
+				};
 
 			} else {
 
 				ref[attrProp] = attrValue;
+
+			}
+
+			if(attrProp == "id" && !(attrValue in id)) {
+
+				id[attrValue] = new Proxy(ref, refProxyHandler);
 
 			}
 		}
@@ -91,19 +97,14 @@ const
 
 		const vBody = v[index];
 
-		if(placeholder[index]) {
-
-			bindResolver([id, ref], vBody);
-
-		} else {
-
-			ref.replaceWith(...(
+		placeholder[index]
+			? bindResolver([id, ref], vBody)
+			: ref.replaceWith(...(
 				vBody[Symbol.toPrimitive]?.(HTML_IDENTIFIER)	? vBody
 				: isPointer(vBody)								? vBody.text()
 				:												[new Text(vBody)]
-			));
-
-		}
+			))
+		;
 
 		ref.removeAttribute(tokenBuf);
 	},
@@ -131,7 +132,7 @@ const
 		);
 	},
 
-	getHTMLTempCache = createCache((s) => {
+	getHTMLTempCache = createWeakCache((s) => {
 
 		let
 			joined = s.join(""),

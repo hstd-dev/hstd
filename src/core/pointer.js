@@ -6,11 +6,11 @@ const
 
 	PTR_IDENTIFIER = Symbol.for("PTR_IDENTIFIER"),
 
-	isPointer = (ptr) => ptr?.[PTR_IDENTIFIER],
-
-	createSignature = () => String.fromCharCode(...resolverSignatureGenCB()),
-
 	publishedPtr = {},
+	
+	createSignature = () => String.fromCharCode(...resolverSignatureGenCB()),
+	
+	isPointer = (ptr) => ptr?.[PTR_IDENTIFIER],
 
 	resolverSignatureGenCB = function*(length = 52) {
 		let c = 0;

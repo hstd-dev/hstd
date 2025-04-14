@@ -1,11 +1,17 @@
-export const createCache = (setter) => {
+/**
+ * 
+ * @param { (object: (void | object)) => any } setter 
+ * @returns { (object: object) => any }
+ */
+
+export const createWeakCache = (setter) => {
 
 	const cacheMap = new WeakMap();
 	let resultBuf;
 
-	return (template) => (cacheMap.has(template)
-		? cacheMap.get(template)
-		: (cacheMap.set(template, resultBuf = setter(template)), resultBuf)
+	return (object) => (cacheMap.has(object)
+		? cacheMap.get(object)
+		: (cacheMap.set(object, resultBuf = setter(object)), resultBuf)
 	);
 
 }
