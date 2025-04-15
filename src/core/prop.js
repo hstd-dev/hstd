@@ -6,7 +6,7 @@ import { createPointer } from "./pointer.js"
  * @param { (name: string) => string } nameFn 
  * @returns { object }
  */
-export const prop = (callback, nameFn) => {
+export const prop = (callback, nameFn/**, staticProperties */) => {
 
 	const
 		cache = {},
@@ -16,7 +16,7 @@ export const prop = (callback, nameFn) => {
 				return (
 					prop === Symbol.toPrimitive	? publisher
 					: prop === "$"				? publisher()
-					:							(cache[prop] ||= createPointer(callback.bind(null, prop), undefined, { name: nameFn ? nameFn(prop) : "" })).publish()
+					:							/** staticProperties[prop] || */(cache[prop] ||= createPointer(callback.bind(null, prop), undefined, { name: nameFn ? nameFn(prop) : "" })).publish()
 				)
 			}
 		}),

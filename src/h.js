@@ -1,6 +1,6 @@
 import { listen } from "./core/listen.js";
 import { isPointer } from "./core/pointer.js";
-import { createWeakCache } from "./core/cache.js";
+import { createWeakCache } from "./core/weakcache.js";
 import { isConstructedFrom } from "./core/checker.js";
 
 const
@@ -109,6 +109,14 @@ const
 		ref.removeAttribute(tokenBuf);
 	},
 
+	then = function(id, onloadCallbackFn) {
+
+		onloadCallbackFn(id);
+
+		return this;
+
+	},
+
 	elementTempBase = function (tokenBuf__placeholder__node, v) {
 
 		const
@@ -122,12 +130,7 @@ const
 
 			newNode.childNodes,
 			fragmentTemp,
-			{
-				then(onloadCallbackFn) {
-					onloadCallbackFn(id);
-					return this;
-				}
-			}
+			{ then: then.bind(null, id) }
 	
 		);
 	},

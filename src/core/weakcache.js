@@ -4,14 +4,8 @@
  * @returns { (object: object) => any }
  */
 
-export const createWeakCache = (setter) => {
-
-	const cacheMap = new WeakMap();
-	let resultBuf;
-
-	return (object) => (cacheMap.has(object)
+export const createWeakCache = (setter, cacheMap = new WeakMap(), resultBuf) => (object) => (
+	cacheMap.has(object)
 		? cacheMap.get(object)
 		: (cacheMap.set(object, resultBuf = setter(object)), resultBuf)
-	);
-
-}
+);

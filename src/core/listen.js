@@ -1,4 +1,4 @@
-import { createWeakCache } from "./cache.js";
+import { createWeakCache } from "./weakcache.js";
 
 let registeredEvent = "\0";
 

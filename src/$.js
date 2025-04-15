@@ -1,5 +1,5 @@
 import { listen } from "./core/listen.js";
-import { createWeakCache } from "./core/cache.js";
+import { createWeakCache } from "./core/weakcache.js";
 import { isFrozenArray, isConstructedFrom } from "./core/checker.js";
 import { createPointer, createSignature, isPointer } from "./core/pointer.js";
 
@@ -39,6 +39,12 @@ const
 		
 	// }
 
+	thisProxy = new Proxy({}, {
+		get(_, prop) {
+
+		}
+	}),
+
 	$ = new Proxy(
 
 		(x, ...y) => (isFrozenArray(x) && isFrozenArray(x?.raw) ? createTemp : createPointer)(x, y),
@@ -47,6 +53,11 @@ const
 			get: (_, prop) => {
 
 				if(prop === Symbol.hasInstance) return isPointer;
+
+				if(prop === "this") {
+
+					return;
+				}
 
 				let tmp = globalPropPtrCache[prop];
 
