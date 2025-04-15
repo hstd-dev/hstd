@@ -13,4 +13,4 @@ const
 
 ;
 
-export { on }
+export { on, listen }

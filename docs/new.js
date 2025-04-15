@@ -12,26 +12,30 @@ Object.assign(document.documentElement.style, {
 
 Object.assign(document.body.style, {
 	margin: 0,
-	padding: 0
-})
+	padding: 0,
+	backgroundColor: "#02030f"
+});
 
-const logoWidth = $.innerWidth.mul(0.3).into($ => $ > 200 ? 200 : $);
+const logoWidth = $.innerWidth.mul(0.3).into($ => $ > 160 ? 160 : $);
 
+const basicBlack = $(0x02030f)
+const textBlack = "#000001"
 const basicWhite = "#f3f4ff"
 
 
-const isPC = $.innerWidth.into($ => $ > 600)
+const isPC = $.innerWidth.into($ => $ > 665)
 
 const buttonStyle = {
 	[css]: {
 		fontFamily: "Inter Tight",
 		fontWeight: 600,
+		fontSize: "16px",
 		backgroundColor: basicWhite,
 		color: "#02030f",
 		borderRadius: "190px",
 		border: "none",
-		fontSize: "16px",
 		textAlign: "center",
+		textDecoration: "none",
 		userSelect: "none",
 		lineHeight: $`${isPC.into($ => $ ? 40 : 50)}px`
 	}
@@ -41,9 +45,12 @@ document.body.append(...html`
 	<div ${{
 		[css]: {
 			width: "100%",
-			height: "800px",
-			backgroundColor: "#025dff",
-			overflow: "hidden"
+			backgroundImage: "url(./resources/hstd-wireframe.svg)",
+			backgroundAttatchment: "fixed",
+			backgroundSize: "cover",
+			backgroundPosition: "center",
+			overflow: "hidden",
+			
 		}
 	}}>
 		<img ${{
@@ -51,31 +58,31 @@ document.body.append(...html`
 			[css]: {
 				width: $`${logoWidth}px`,
 				marginLeft: $`${$.innerWidth.sub(logoWidth).div(2)}px`,
-				marginTop: "160px",
-				marginBottom: "10px"
+				marginTop: "100px",
+				marginBottom: "40px"
 			}
 		}}>
 		<h1 ${{
 			[css]: {
 				color: basicWhite,
-				width: "400px",
+				width: "100%",
 				marginTop: 0,
-				marginLeft: $`${$.innerWidth.sub(400).div(2)}px`,
+				marginBottom: "10px",
 				textAlign: "center",
 
-				fontSize: "40px",
+				fontSize: isPC.into($ => $ ? "50px" : "40px"),
 				fontFamily: "Inter Tight",
-				fontWeight: "bold",
+				fontWeight: 700,
 			}
 		}}>HyperStandard</h1>
 		<h3 ${{
 			[css]: {
 				color: basicWhite,
 				fontFamily: "Inter Tight",
-				fontWeight: 550,
+				fontSize: "22px",
+				fontWeight: 600,
 				width: "100%",
-				textAlign: "center",
-				fontStyle: "italic"
+				textAlign: "center"
 			}
 		}}>Fast. Interactive. Web Interface.</h3>
 
@@ -85,6 +92,7 @@ document.body.append(...html`
 				width: $`${isPC.into($ => $ ? 380 : 210)}px`,
 				height: $`${isPC.into($ => $ ? 40 : 100)}px`,
 				marginTop: "60px",
+				marginBottom: "150px",
 				marginLeft: $`${$.innerWidth.sub(isPC.into($ => $ ? 380 : 210)).div(2)}px`,
 
 				display: "grid",
@@ -96,15 +104,22 @@ document.body.append(...html`
 			<a ${{
 				...buttonStyle,
 				[css]: {
-					backgroundColor: "#02030f",
+					background: $`linear-gradient(0.475turn, #${basicBlack.sum(0x353540).toString(16).padStart(6, "0")}, #${basicBlack.toString(16).padStart(6, "0")})`,
 					color: basicWhite,
-					// fontSize: {
-					// 	default: "200px",
-					// 	[on.hover]: "300px"
-					// }
-				}
-			}}>Get Started</a>
-			<a ${{ ...buttonStyle }}>View Documentation</a>
+				},
+				href: "./get-started"
+			}}>Learn HSTD</a>
+			<a ${{
+				...buttonStyle, 
+				href: "./docs"
+			}}>View Documentation</a>
 		</div>
 	</div>
+	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
+	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
+	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
+	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
+	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
+	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
+	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
 `)
