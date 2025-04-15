@@ -1,12 +1,12 @@
 {
   "name": "hstd",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "simple library to build reactive, extensive, reusable web interface.",
   "type": "module",
   "main": "./src/mod.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "esbuild --minify --bundle --format=esm --outfile=docs/mod.js ./src/mod.js"
+    "build": "npx esbuild --minify --bundle --format=esm --outfile=docs/mod.js ./src/mod.js"
   },
   "repository": {
     "type": "git",
@@ -20,5 +20,9 @@
   "exports": {
     ".": "./src/mod.js"
   },
-  "homepage": "https://libh.js.org"
+  "homepage": "https://libh.js.org",
+  "devDependencies": {
+    "@hono/node-server": "^1.14.1",
+    "hono": "^4.7.6"
+  }
 }
