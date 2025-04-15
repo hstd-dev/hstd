@@ -18,12 +18,12 @@ Object.assign(document.body.style, {
 
 const logoWidth = $.innerWidth.mul(0.3).into($ => $ > 160 ? 160 : $);
 
-const basicBlack = "#02030f"
+const basicBlack = $(0x02030f)
 const textBlack = "#000001"
 const basicWhite = "#f3f4ff"
 
 
-const isPC = $.innerWidth.into($ => $ > 600)
+const isPC = $.innerWidth.into($ => $ > 665)
 
 const buttonStyle = {
 	[css]: {
@@ -45,8 +45,12 @@ document.body.append(...html`
 	<div ${{
 		[css]: {
 			width: "100%",
-			backgroundColor: "#025dff",
-			overflow: "hidden"
+			backgroundImage: "url(./resources/hstd-wireframe.svg)",
+			backgroundAttatchment: "fixed",
+			backgroundSize: "cover",
+			backgroundPosition: "center",
+			overflow: "hidden",
+			
 		}
 	}}>
 		<img ${{
@@ -66,7 +70,7 @@ document.body.append(...html`
 				marginBottom: "10px",
 				textAlign: "center",
 
-				fontSize: "50px",
+				fontSize: isPC.into($ => $ ? "50px" : "40px"),
 				fontFamily: "Inter Tight",
 				fontWeight: 700,
 			}
@@ -100,19 +104,22 @@ document.body.append(...html`
 			<a ${{
 				...buttonStyle,
 				[css]: {
-					backgroundColor: "#02030f",
+					background: $`linear-gradient(0.475turn, #${basicBlack.sum(0x353540).toString(16).padStart(6, "0")}, #${basicBlack.toString(16).padStart(6, "0")})`,
 					color: basicWhite,
-					// fontSize: {
-					// 	default: "200px",
-					// 	[on.hover]: "300px"
-					// }
 				},
 				href: "./get-started"
-			}}>Get Started</a>
+			}}>Learn HSTD</a>
 			<a ${{
 				...buttonStyle, 
 				href: "./docs"
 			}}>View Documentation</a>
 		</div>
 	</div>
+	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
+	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
+	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
+	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
+	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
+	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
+	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
 `)
