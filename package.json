@@ -20,5 +20,9 @@
   "exports": {
     ".": "./src/mod.js"
   },
-  "homepage": "https://libh.js.org"
+  "homepage": "https://libh.js.org",
+  "devDependencies": {
+    "@hono/node-server": "^1.14.1",
+    "hono": "^4.7.6"
+  }
 }
