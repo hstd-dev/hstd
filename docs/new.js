@@ -108,18 +108,26 @@ document.body.append(...html`
 					color: basicWhite,
 				},
 				href: "./get-started"
-			}}>Learn HSTD</a>
+			}}>Get on HSTD</a>
 			<a ${{
 				...buttonStyle, 
 				href: "./docs"
 			}}>View Documentation</a>
 		</div>
 	</div>
+	<h1 ${{
+		[css]: {
+			color: "white",
+			padding: "40px 0",
+			fontFamily: "Inter Tight",
+			width: "100%",
+			textAlign: "center"
+		}
+	}}>So Standard. So Modern.</h1>
 	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
 	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
 	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
 	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
 	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
 	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
-	<h1 ${{ [css.color]: "white" }}>wOOOOOOOO</h1>
-`)
+`);
