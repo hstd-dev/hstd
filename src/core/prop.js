@@ -9,6 +9,7 @@ import { createPointer } from "./pointer.js"
 export const createProp = (callback, nameFn/**, staticProperties */) => {
 
 	const
+
 		cache = {},
 
 		proxy = new Proxy({}, {

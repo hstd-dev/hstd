@@ -1,3 +1,4 @@
+![HyperStandard Main Image](./docs/resources/hstd-readme-header.svg)
 # [h](https://libh.js.org)std
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/edit/vitejs-vite-vcga6uwx?file=main.js)
 [![NPM Version](https://img.shields.io/npm/v/hstd?logo=npm&color=%23CC3534)](https://www.npmjs.com/package/hstd)

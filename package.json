@@ -20,7 +20,7 @@
   "exports": {
     ".": "./src/mod.js"
   },
-  "homepage": "https://libh.js.org",
+  "homepage": "https://hstd.pages.dev",
   "devDependencies": {
     "@hono/node-server": "^1.14.1",
     "esbuild": "^0.25.2",
