@@ -1,11 +1,11 @@
 import { listen } from "./core/listen.js";
-import { createWeakCache } from "./core/weakcache.js";
+import { createCache } from "./core/cache.js";
 import { isFrozenArray, isConstructedFrom } from "./core/checker.js";
 import { createPointer, createSignature, isPointer } from "./core/pointer.js";
 
 const
 
-	getLiteralTempCache = createWeakCache((s) => {
+	getLiteralTempCache = createCache((s) => {
 
 		const code = createSignature();
 

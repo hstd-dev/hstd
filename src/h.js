@@ -1,6 +1,6 @@
 import { listen } from "./core/listen.js";
 import { isPointer } from "./core/pointer.js";
-import { createWeakCache } from "./core/weakcache.js";
+import { createCache } from "./core/cache.js";
 import { isConstructedFrom } from "./core/checker.js";
 
 const
@@ -135,7 +135,7 @@ const
 		);
 	},
 
-	getHTMLTempCache = createWeakCache((s) => {
+	getHTMLTempCache = createCache((s) => {
 
 		let
 			joined = s.join(""),

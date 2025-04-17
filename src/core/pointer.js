@@ -52,6 +52,10 @@ const
 
 			},
 
+			/**
+			 * watch(watcherFn) - add watcher to pointer, which observes the mutation of attatched value.
+			 */
+
 			watch(buffer, watcherFn) {
 
 				if(watcherFn) {
@@ -82,8 +86,8 @@ const
 				const
 					binder = value => {
 						const tmp = transformerFn(value);
-						return isConstructedFrom(tmp, Promise)
-							? (tmp.then($ => newPtr.$ = $), undefined)
+						return isConstructedFrom(tmp, Promise) ? (tmp.then($ => newPtr.$ = $), undefined)
+							// : isPtr(tmp) ? newPtr
 							: newPtr.$ = tmp;
 					},
 					newPtr = createPointer()
@@ -208,15 +212,96 @@ const
 
 			}
 
-		})),
-
-		// ...Object.keys(Math).filter(x => typeof Math[x] == "function").map(x => ({
-		// 	[x](buffer, args) {
-		//		
-		// 	}
-		// }))
+		}))
 
 	),
+
+	execWatcherTemp = function (buffer, /**bind end */ value, force, ptr) {
+		const watcherInfo = buffer[2];
+		(force || (value !== buffer[0]))
+			? (buffer[0] = value, buffer[1].forEach(fn => watcherInfo.get(fn)?.[1] ? fn(value) : 0))
+			: 0
+		;
+		return ptr;
+	},
+
+	recieverResolver = function(reciever, /**bind end */ ...args) {
+									
+		const
+			argMap = args.map((arg, i) => (
+
+				isPointer(arg)
+
+					? arg.watch($ => (
+
+						argMap[i] = $,
+						ptrBuf.$ = reciever.$[prop](...argMap)
+
+					)).$
+
+					: arg
+			)),
+
+			ptrBuf = reciever.into($ => $[prop](...argMap))
+		;
+
+		return ptrBuf
+
+	},
+
+	proxyGetterTemp = function(buffer, execWatcher, /**bind end */ _, prop, reciever) {
+
+		const
+			[tmp] = buffer
+		;
+
+		return (
+				prop === "$"											? tmp
+				: prop === "refresh"									? execWatcher.bind(null, tmp, !0, reciever)
+				: prop === "constructor"								? !0
+
+
+				: prop === PTR_IDENTIFIER		? !0
+				: prop === Symbol.hasInstance	? () => !1
+
+				: (
+					opTemp[prop]?.bind?.(reciever, buffer) || (
+
+						isConstructedFrom(tmp[prop], Function)
+
+							? recieverResolver.bind(null, reciever)
+
+							: reciever.into($ => $[prop])
+
+					)
+				)
+		);
+	},
+
+	proxySetterTemp = function(buffer, formattedOptions, setter, execWatcher, /**bind end */ _, prop, newValue) {
+
+		if(formattedOptions.writable) {
+
+			if(prop == "$") {
+
+				const tmp = setter ? setter(newValue) : newValue;
+
+				isConstructedFrom(tmp, Promise) ? tmp.then(execWatcher) : execWatcher(tmp)
+
+			} else {
+				
+				buffer[0][prop] = (
+					isPointer(newValue)
+						? newValue.watch($ => buffer[0][prop] = $).$
+						: newValue
+				)
+			}
+		}
+
+
+		return !0;
+
+	},
 
 	createPointer = (value, [setter, options] = []) => {
 
@@ -224,19 +309,13 @@ const
 			watchers = [],
 			watcherInfo = new WeakMap(),
 			formattedOptions = Object.assign({ name: "$", writable: true }, options),
-			execWatcher = function (value, force, ptr) {
-				(force || (value !== buffer[0]))
-					? (buffer[0] = value, watchers.forEach(fn => watcherInfo.get(fn)?.[1] ? fn(value) : 0))
-					: 0
-				;
-				return ptr;
-			},
 			buffer = [
 				value,
 				watchers,
 				watcherInfo,
-				signature + (options?.name || "")
-			]
+				signature + formattedOptions.name
+			],
+			execWatcher = execWatcherTemp.bind(null, buffer);
 		;
 
 		return new Proxy(
@@ -251,80 +330,9 @@ const
 
 			{
 
-				get(_, prop, reciever) {
+				get: proxyGetterTemp.bind(null, buffer, execWatcher),
 
-					const
-						[tmp] = buffer
-					;
-
-					return (
-							prop === "$"											? tmp
-							: prop === "refresh"									? execWatcher.bind(null, tmp, !0, reciever)
-							: prop === "constructor"								? !0
-
-
-							: prop === PTR_IDENTIFIER		? !0
-							: prop === Symbol.hasInstance	? () => !1
-
-							: (
-								opTemp[prop]?.bind?.(reciever, buffer) || (
-
-									isConstructedFrom(tmp[prop], Function)
-
-										? function(...args) {
-									
-											const
-												argMap = args.map((arg, i) => (
-
-													isPointer(arg)
-
-														? arg.watch($ => (
-															argMap[i] = $,
-															ptrBuf.$ = reciever.$[prop](...argMap)
-														)).$
-
-														: arg
-												)),
-
-												ptrBuf = reciever.into($ => $[prop](...argMap))
-											;
-				
-											return ptrBuf
-				
-										}
-
-										: reciever.into($ => $[prop])
-
-								)
-							)
-					);
-
-				},
-
-				set(_, prop, newValue) {
-
-					if(formattedOptions.writable) {
-
-						if(prop == "$") {
-	
-							const tmp = setter ? setter(newValue) : newValue;
-	
-							isConstructedFrom(tmp, Promise) ? tmp.then(execWatcher) : execWatcher(tmp)
-	
-						} else {
-							
-							buffer[0][prop] = (
-								isPointer(newValue)
-									? newValue.watch($ => buffer[0][prop] = $).$
-									: newValue
-							)
-						}
-					}
-
-
-					return !0;
-
-				}
+				set: proxySetterTemp.bind(null, buffer, formattedOptions, setter, execWatcher)
 
 			}
 

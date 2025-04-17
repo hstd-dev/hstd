@@ -1,9 +1,9 @@
-import { prop } from "./core/prop.js";
+import { createProp } from "./core/prop.js";
 import { listen } from "./core/listen.js";
 
 const
 
-	on = prop(
+	on = createProp(
 
 		listen,
 

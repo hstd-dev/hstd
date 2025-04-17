@@ -6,7 +6,7 @@ import { createPointer } from "./pointer.js"
  * @param { (name: string) => string } nameFn 
  * @returns { object }
  */
-export const prop = (callback, nameFn/**, staticProperties */) => {
+export const createProp = (callback, nameFn/**, staticProperties */) => {
 
 	const
 		cache = {},

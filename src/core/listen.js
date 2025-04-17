@@ -1,10 +1,10 @@
-import { createWeakCache } from "./weakcache.js";
+import { createCache } from "./cache.js";
 
 let registeredEvent = "\0";
 
 const
 
-	targetCache = createWeakCache(() => ({})),
+	targetCache = createCache(() => ({})),
 
 	/**
 	 * @param { string } eventName
