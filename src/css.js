@@ -28,7 +28,7 @@ const
 			)
 		},
 
-		prop => "css-" + formStyleProp(prop)
+		createCache(prop => "css-" + formStyleProp(prop))
 
 	)
 ;
