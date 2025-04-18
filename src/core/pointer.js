@@ -225,7 +225,7 @@ const
 		return ptr;
 	},
 
-	recieverResolver = function(reciever, /**bind end */ ...args) {
+	recieverResolver = function(reciever, prop, /**bind end */ ...args) {
 									
 		const
 			argMap = args.map((arg, i) => (
@@ -269,7 +269,7 @@ const
 
 						isConstructedFrom(tmp[prop], Function)
 
-							? recieverResolver.bind(null, reciever)
+							? recieverResolver.bind(null, reciever, prop)
 
 							: reciever.into($ => $[prop])
 
