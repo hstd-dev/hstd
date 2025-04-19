@@ -19,8 +19,7 @@ export const createCache = (setter) => {
 
 		let result;
 
-		return map.has(object)
-			? map.get(object)
+		return map.has(object) ? map.get(object)
 			: (map.set(object, result = setter(object)), result)
 		;
 	}

@@ -2,6 +2,10 @@ import { listen } from "./core/listen.js";
 import { isPointer } from "./core/pointer.js";
 import { createCache } from "./core/cache.js";
 import { isConstructedFrom } from "./core/checker.js";
+import { getPrototype } from "./core/prototype.js";
+
+const { replaceWith } = getPrototype(Element);
+const { cloneNode } = getPrototype(Node);
 
 const
 
@@ -39,12 +43,11 @@ const
 		}
 	},
 
-	bindResolver = (id__ref, attrBody) => Reflect.ownKeys(attrBody).forEach(attrResolve.bind(null, id__ref, attrBody)),
+	bindResolver = (id, ref, attrBody) => Reflect.ownKeys(attrBody).forEach(attrResolve.bind(null, id, ref, attrBody)),
 
-	attrResolve = function(id__ref, attrBody, attrProp) {
+	attrResolve = function(id, ref, attrBody, attrProp) {
 
 		const
-			[id, ref] = id__ref,
 			attrValue = attrBody[attrProp],
 			attrPropType = typeof attrProp
 		;
@@ -98,8 +101,8 @@ const
 		const vBody = v[index];
 
 		placeholder[index]
-			? bindResolver([id, ref], vBody)
-			: ref.replaceWith(...(
+			? bindResolver(id, ref, vBody)
+			: replaceWith.apply(ref, (
 				vBody[Symbol.toPrimitive]?.(HTML_IDENTIFIER)	? vBody
 				: isPointer(vBody)								? vBody.text()
 				:												[new Text(vBody)]
@@ -165,7 +168,7 @@ const
 				: `<br ${tokenBuf}>`
 		);
 
-		return elementTempBase.bind(null, [tokenBuf, placeholder, node.cloneNode.bind(node, !0)]);
+		return elementTempBase.bind(null, [tokenBuf, placeholder, cloneNode.bind(node, !0)]);
 
 	})
 ;

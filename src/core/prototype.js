@@ -1,0 +1,1 @@
+export const getPrototype = target => target.prototype;

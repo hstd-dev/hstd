@@ -256,9 +256,9 @@ const
 		;
 
 		return (
-				prop === "$"											? tmp
-				: prop === "refresh"									? execWatcher.bind(null, tmp, !0, reciever)
-				: prop === "constructor"								? !0
+				prop === "$"					? tmp
+				: prop === "refresh"			? execWatcher.bind(null, tmp, !0, reciever)
+				: prop === "constructor"		? !0
 
 
 				: prop === PTR_IDENTIFIER		? !0
