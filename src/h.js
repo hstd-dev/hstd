@@ -96,14 +96,22 @@ const
 		}
 	},
 
-	resolveQuery = function([tokenBuf, placeholder], v, id, ref, index) {
+	// resolveVBody = (vBody) => (
+	// 	isConstructedFrom(vBody, Array)					? vBody.map(frag => [...frag]).flat(1)
+	// 	: vBody[Symbol.toPrimitive]?.(HTML_IDENTIFIER)	? vBody
+	// 	: isPointer(vBody)								? vBody.text()
+	// 	:												[new Text(vBody)]
+	// ),
+
+	resolveQuery = function([tokenBuf, propLocation], v, id, ref, index) {
 
 		const vBody = v[index];
 
-		placeholder[index]
+		propLocation[index]
 			? bindResolver(id, ref, vBody)
 			: replaceWith.apply(ref, (
-				vBody[Symbol.toPrimitive]?.(HTML_IDENTIFIER)	? vBody
+				isConstructedFrom(vBody, Array)					? vBody.map(frag => [...frag]).flat(1)
+				: vBody[Symbol.toPrimitive]?.(HTML_IDENTIFIER)	? vBody
 				: isPointer(vBody)								? vBody.text()
 				:												[new Text(vBody)]
 			))
@@ -120,14 +128,14 @@ const
 
 	},
 
-	elementTempBase = function (tokenBuf__placeholder__node, v) {
+	elementTempBase = function (tokenBuf__propLocation__node, v) {
 
 		const
-			newNode = tokenBuf__placeholder__node[2](),
+			newNode = tokenBuf__propLocation__node[2](),
 			id = {}
 		;
 		
-		newNode.querySelectorAll(`[${tokenBuf__placeholder__node[0]}]`).forEach(resolveQuery.bind(null, tokenBuf__placeholder__node, v, id));
+		newNode.querySelectorAll(`[${tokenBuf__propLocation__node[0]}]`).forEach(resolveQuery.bind(null, tokenBuf__propLocation__node, v, id));
 
 		return Object.assign(
 
@@ -138,7 +146,7 @@ const
 		);
 	},
 
-	getHTMLTempCache = createCache((s) => {
+	hCache = createCache((s) => {
 
 		let
 			joined = s.join(""),
@@ -180,4 +188,4 @@ const
  * @returns { NodeList }
  */
 
-export const h = (s, ...v) => getHTMLTempCache(s)(v);
+export const h = (s, ...v) => hCache(s)(v);
