@@ -1,5 +1,8 @@
 ![HyperStandard Main Image](./docs/resources/hstd-readme-header.svg)
-# [H](https://hstd.pages.dev)yperStandard - Fast. Interactive. Web Interface.
+<h1 style="width: 100%; text-align: center;"><a href="https://hstd.pages.dev">H</a>yperStandard</h1>
+<span style="display: block; width: 100%; text-align: center; font-size: 16px; font-weight: bold;">Fast. Interactive. Web Interface.</span>
+<br>
+
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/edit/vitejs-vite-vcga6uwx?file=main.js)
 [![NPM Version](https://img.shields.io/npm/v/hstd?logo=npm&color=%23CC3534)](https://www.npmjs.com/package/hstd)
 [![npm package minimized gzipped size](https://img.shields.io/bundlejs/size/hstd?logo=stackblitz)](https://bundlephobia.com/package/hstd)
