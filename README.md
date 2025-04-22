@@ -1,6 +1,6 @@
 ![HyperStandard Main Image](./docs/resources/hstd-readme-header.svg)
-<h1 style="width: 100%; text-align: center;"><a href="https://hstd.pages.dev">H</a>yperStandard</h1>
-<span style="display: block; width: 100%; text-align: center; font-size: 16px; font-weight: bold;">Fast. Interactive. Web Interface.</span>
+<h1 align="center"><a href="https://hstd.pages.dev">H</a>yperStandard</h3>
+<h4 align="center">Fast. Interactive. Web Interface.</h4>
 <br>
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/edit/vitejs-vite-vcga6uwx?file=main.js)
