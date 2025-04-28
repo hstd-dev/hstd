@@ -27,7 +27,7 @@ document.body.append(...Component());
 ```
 
 **hstd** = HyperStandard is a minimal JavaScript library to build fast, interactive, extensible web interface.
-Visit live [demo](https://ihasq.com/hstd/demo/count).
+Visit live [demo](https://stackblitz.com/edit/web-platform-wikgugv3?devToolsHeight=33&file=src%2FApp.js).
 
 ---
 - **[Install](#install)**
