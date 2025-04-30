@@ -20,7 +20,7 @@
   "exports": {
     ".": "./src/mod.js"
   },
-  "homepage": "https://hstd.pages.dev",
+  "homepage": "https://hstd.io",
   "devDependencies": {
     "@hono/node-server": "^1.14.1",
     "esbuild": "^0.25.2",

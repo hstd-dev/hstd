@@ -1,5 +1,5 @@
 ![HyperStandard Main Image](./docs/resources/hstd-readme-header.svg)
-<h1 align="center"><a href="https://hstd.pages.dev">H</a>yperStandard</h3>
+<h1 align="center"><a href="https://hstd.io">H</a>yperStandard</h3>
 <h4 align="center">Fast. Interactive. Web Interface.</h4>
 <br>
 
@@ -32,7 +32,6 @@ Visit live [demo](https://stackblitz.com/edit/web-platform-wikgugv3?devToolsHeig
 ---
 - **[Install](#install)**
 - **[Examples](#examples)**
-- **[Demo](#demo)**
 - **[License](#license)**
 
 ---
@@ -108,9 +107,6 @@ function Canvas() {
     })
 }
 ```
-
-## Demo
-+ [Passcore](https://ihasq.com/passcore) - Random Password Generator ([code](https://github.com/ihasq/passcore))
 
 ## License
 
