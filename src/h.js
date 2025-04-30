@@ -60,7 +60,7 @@ const
 			const buf = attrPtr.$(attrValue, ref);
 			if(buf?.constructor !== Object) return;
 
-			bindResolver(id__ref, buf);
+			bindResolver(id, ref, buf);
 
 		} else if(attrPropType == "string") {
 
