@@ -41,9 +41,9 @@ Visit live [demo](https://stackblitz.com/edit/web-platform-wikgugv3?devToolsHeig
 npm i hstd
 ```
 
-## Usage
+## On-demand
 ```javascript
-import { $, h as html } from "hstd";
+import { $, h as html } from "https://hstd.io";
 ```
 
 ## Examples
