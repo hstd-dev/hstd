@@ -31,49 +31,67 @@ Visit live [demo](https://stackblitz.com/edit/web-platform-wikgugv3?devToolsHeig
 
 ---
 - **[Install](#install)**
+    + [NPM](#npm)
+    + [HTTP](#http)
+    + [ImportMap](#importmap)
+
 - **[Examples](#examples)**
+    + [Class-model](#class-model)
+    + [Interactive Binding](#Interactive-binding)
+    + [Post-processing](#post-processing)
+
 - **[License](#license)**
 
 ---
 
 ## Install
+
+### NPM
 ```sh
 npm i hstd
 ```
 
-## On-demand
+### HTTP
 ```javascript
 import { $, h as html } from "https://hstd.io";
 ```
 
+### ImportMap
+```json
+{
+    "imports": {
+        "hstd": "https://hstd.io"
+    }
+}
+```
+
 ## Examples
-**[Class-model](#class-model) | [Bidirecetional binding](#bidirecetional-binding) | [Post-processing](#post-processing)**
 
 ### Class-model
 ```javascript
 import { $, h as html, on, css } from "hstd"
 
-const ButtonClass = {
+const buttonClass = $((alertText) => ({
     [css]: {
         color: "white",
         backgroundColor: "blue",
     },
-    [on.click]: () => alert("hi")
-}
+    [on.click]: () => alert(alertText)
+}))
 
 function Main() {
 
     const count = $(0);
 
     return html`
-        <button ${{ [on.click]: () => count.$++, ...ButtonClass }}>
+        <button ${{ [on.click]: () => count.$++, [buttonClass]: "hi" }}>
             I'm styled ${count}!
         </button>
     `
 }
 ```
 
-### Bidirecetional binding
+### Interactive binding
 ```javascript
 function Linked() {
 
