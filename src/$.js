@@ -11,7 +11,7 @@ const
 
 		return [s.join(code), new RegExp(code, "g")]
 
-	}),
+	}, true),
 
 	createTemp = (s, v) => {
 
@@ -32,18 +32,6 @@ const
 
 
 	globalPropPtrCache = {},
-
-	globalPropCaptureTarget = "\0innerWidth\0innerHeight\0outerWidth\0outerHeight\0",
-
-	// valueFetcherRAFCallback = () => {
-		
-	// }
-
-	thisProxy = new Proxy({}, {
-		get(_, prop) {
-
-		}
-	}),
 
 	$ = new Proxy(
 
