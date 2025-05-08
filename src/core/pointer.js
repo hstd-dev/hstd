@@ -1,4 +1,5 @@
 import { isConstructedFrom } from "./checker.js";
+import { createCache } from "./cache.js";
 
 const
 
@@ -21,6 +22,9 @@ const
 	},
 
 	logicOps = {
+		is:						Object.is,
+		leq:					(a, b) => a == b,
+		seq:					(a, b) => a === b,
 		or:						(a, b) => a || b,
 		and:					(a, b) => a && b,
 		xor:					(a, b) => a ^ b,
@@ -216,6 +220,8 @@ const
 
 	),
 
+	ptrFromBuffer = new WeakMap(),
+
 	execWatcherTemp = function (buffer, /**bind end */ value, force, ptr) {
 		const watcherInfo = buffer[2];
 		(force || (value !== buffer[0]))
@@ -249,59 +255,9 @@ const
 
 	},
 
-	proxyGetterTemp = function(buffer, execWatcher, /**bind end */ _, prop, reciever) {
-
-		const
-			[tmp] = buffer
-		;
-
-		return (
-				prop === "$"					? tmp
-				: prop === "refresh"			? execWatcher.bind(null, tmp, !0, reciever)
-				: prop === "constructor"		? !0
-
-
-				: prop === PTR_IDENTIFIER		? !0
-				: prop === Symbol.hasInstance	? () => !1
-
-				: (
-					opTemp[prop]?.bind?.(reciever, buffer) || (
-
-						isConstructedFrom(tmp[prop], Function)
-
-							? recieverResolver.bind(null, reciever, prop)
-
-							: reciever.into($ => $[prop])
-
-					)
-				)
-		);
-	},
-
-	proxySetterTemp = function(buffer, formattedOptions, setter, execWatcher, /**bind end */ _, prop, newValue) {
-
-		if(formattedOptions.writable) {
-
-			if(prop == "$") {
-
-				const tmp = setter ? setter(newValue) : newValue;
-
-				isConstructedFrom(tmp, Promise) ? tmp.then(execWatcher) : execWatcher(tmp)
-
-			} else {
-				
-				buffer[0][prop] = (
-					isPointer(newValue)
-						? newValue.watch($ => buffer[0][prop] = $).$
-						: newValue
-				)
-			}
-		}
-
-
-		return !0;
-
-	},
+	opBinder = createCache((prop) => createCache((buffer) => opTemp[prop].bind(ptrFromBuffer.get(buffer), buffer), true)),
+	
+	hasOp = hasOwnProperty.bind(opTemp),
 
 	createPointer = (value, [setter, options] = []) => {
 
@@ -315,28 +271,79 @@ const
 				watcherInfo,
 				signature + formattedOptions.name
 			],
-			execWatcher = execWatcherTemp.bind(null, buffer);
+			execWatcher = execWatcherTemp.bind(null, buffer),
+			ptr = new Proxy(
+
+				Object.defineProperties(Object(function(...args) {
+	
+					const [tmp] = buffer;
+	
+					return isConstructedFrom(tmp, Function) ? tmp.apply(null, args) : tmp;
+	
+				}), { name: { value: formattedOptions.name } }),
+	
+				{
+	
+					get(_, prop, reciever) {
+	
+						const
+							[tmp] = buffer
+						;
+				
+						return (
+								prop === "$"					? tmp
+								: prop === "refresh"			? execWatcher.bind(null, tmp, !0, reciever)
+								: prop === "constructor"		? !0
+				
+				
+								: prop === PTR_IDENTIFIER		? !0
+								: prop === Symbol.hasInstance	? () => !1
+	
+								: hasOp(prop)					? opBinder(prop)(buffer)
+				
+								: (
+									isConstructedFrom(tmp[prop], Function)
+			
+										? recieverResolver.bind(null, reciever, prop)
+			
+										: reciever.into($ => $[prop])
+								)
+						);
+					},
+	
+					set(_, prop, newValue) {
+	
+						if(formattedOptions.writable) {
+				
+							if(prop == "$") {
+				
+								const tmp = setter ? setter(newValue) : newValue;
+				
+								isConstructedFrom(tmp, Promise) ? tmp.then(execWatcher) : execWatcher(tmp)
+				
+							} else {
+								
+								buffer[0][prop] = (
+									isPointer(newValue)
+										? newValue.watch($ => buffer[0][prop] = $).$
+										: newValue
+								)
+							}
+						}
+				
+				
+						return !0;
+				
+					}
+	
+				}
+	
+			)
 		;
 
-		return new Proxy(
+		ptrFromBuffer.set(buffer, ptr);
 
-			Object.defineProperties(Object(function(...args) {
-
-				const [tmp] = buffer;
-
-				return isConstructedFrom(tmp, Function) ? tmp.apply(null, args) : tmp;
-
-			}), { name: { value: formattedOptions.name } }),
-
-			{
-
-				get: proxyGetterTemp.bind(null, buffer, execWatcher),
-
-				set: proxySetterTemp.bind(null, buffer, formattedOptions, setter, execWatcher)
-
-			}
-
-		)
+		return ptr;
 	}
 ;
 

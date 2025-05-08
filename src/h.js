@@ -178,7 +178,7 @@ const
 
 		return elementTempBase.bind(null, [tokenBuf, placeholder, cloneNode.bind(node, !0)]);
 
-	})
+	}, true)
 ;
 
 /**

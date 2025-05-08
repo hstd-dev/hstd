@@ -4,7 +4,7 @@ let registeredEvent = "\0";
 
 const
 
-	targetCache = createCache(() => ({})),
+	targetCache = createCache(() => ({}), true),
 
 	/**
 	 * @param { string } eventName

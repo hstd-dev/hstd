@@ -4,23 +4,12 @@
  * @returns { (object: object) => any }
  */
 
-export const createCache = (setter) => {
+export const createCache = (setter, isWeak = false, map = new (isWeak ? WeakMap : Map)) => (object) => {
 
-	const 
-		cacheWeakMap = new WeakMap(),
-		cacheMap = new Map()
+	let result;
+
+	return map.has(object)
+		? map.get(object)
+		: (map.set(object, result = setter(object)), result)
 	;
-
-	return (object) => {
-
-		const
-			map = "function\0object".includes(typeof object) ? cacheWeakMap : cacheMap
-		;
-
-		let result;
-
-		return map.has(object) ? map.get(object)
-			: (map.set(object, result = setter(object)), result)
-		;
-	}
 }
