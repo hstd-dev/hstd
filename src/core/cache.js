@@ -1,4 +1,5 @@
 /**
+ * @description createCache() stores its setters calculation result.
  * 
  * @param { (object: (void | object)) => any } setter 
  * @returns { (object: object) => any }

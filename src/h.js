@@ -93,31 +93,6 @@ const
 		}
 	}),
 
-	resolverTemp = (tokenBuf, propLocation) => (v, id) => (ref, index) => {
-
-		const vBody = v[index];
-
-		propLocation[index]
-			? bindResolver(id, ref, vBody)
-			: replaceWith.apply(ref, (
-				isConstructedFrom(vBody, Array)					? vBody.map(frag => [...frag]).flat(1)
-				: vBody[Symbol.toPrimitive]?.(HTML_IDENTIFIER)	? vBody
-				: isPointer(vBody)								? vBody.text()
-				:												[new Text(vBody)]
-			))
-		;
-
-		ref.removeAttribute(tokenBuf);
-	},
-
-	then = (id) => function(onloadCallbackFn) {
-
-		onloadCallbackFn(id);
-
-		return this;
-
-	},
-
 	hCache = createCache((s) => {
 
 		let
@@ -148,8 +123,6 @@ const
 				: `<br ${tokenBuf}>`
 		);
 
-		const resolve = resolverTemp(tokenBuf, placeholder);
-
 		return (v) => {
 
 			const
@@ -157,13 +130,35 @@ const
 				id = {}
 			;
 			
-			newNode.querySelectorAll(`[${tokenBuf}]`).forEach(resolve(v, id));
+			newNode.querySelectorAll(`[${tokenBuf}]`).forEach((ref, index) => {
+
+				const vBody = v[index];
+		
+				placeholder[index] ? bindResolver(id, ref, vBody)
+				: replaceWith.apply(ref, (
+						isConstructedFrom(vBody, Array)					? vBody.map(frag => [...frag]).flat(1)
+						: vBody[Symbol.toPrimitive]?.(HTML_IDENTIFIER)	? vBody
+						: isPointer(vBody)								? vBody.text()
+						:												[new Text(vBody)]
+					))
+				;
+		
+				ref.removeAttribute(tokenBuf);
+			})
 	
 			return Object.assign(
 	
 				newNode.childNodes,
 				fragmentTemp,
-				{ then: then.bind(null, id) }
+				{
+					then(onloadCallbackFn) {
+
+						onloadCallbackFn(id);
+				
+						return this;
+			
+					}
+				}
 		
 			);
 		};
