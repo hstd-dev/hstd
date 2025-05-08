@@ -4,10 +4,9 @@ import { createCache } from "./core/cache.js";
 import { isConstructedFrom } from "./core/checker.js";
 import { getPrototype } from "./core/prototype.js";
 
-const { replaceWith } = getPrototype(Element);
-const { cloneNode } = getPrototype(Node);
-
 const
+
+	{ replaceWith } = getPrototype(Element),
 
 	HTML_IDENTIFIER = Symbol.for("HTML_IDENTIFIER"),
 
@@ -43,9 +42,7 @@ const
 		}
 	},
 
-	bindResolver = (id, ref, attrBody) => Reflect.ownKeys(attrBody).forEach(attrResolve.bind(null, id, ref, attrBody)),
-
-	attrResolve = function(id, ref, attrBody, attrProp) {
+	bindResolver = (id, ref, attrBody) => Reflect.ownKeys(attrBody).forEach((attrProp) => {
 
 		const
 			attrValue = attrBody[attrProp],
@@ -94,16 +91,9 @@ const
 
 			}
 		}
-	},
+	}),
 
-	// resolveVBody = (vBody) => (
-	// 	isConstructedFrom(vBody, Array)					? vBody.map(frag => [...frag]).flat(1)
-	// 	: vBody[Symbol.toPrimitive]?.(HTML_IDENTIFIER)	? vBody
-	// 	: isPointer(vBody)								? vBody.text()
-	// 	:												[new Text(vBody)]
-	// ),
-
-	resolveQuery = function([tokenBuf, propLocation], v, id, ref, index) {
+	resolverTemp = (tokenBuf, propLocation) => (v, id) => (ref, index) => {
 
 		const vBody = v[index];
 
@@ -120,30 +110,12 @@ const
 		ref.removeAttribute(tokenBuf);
 	},
 
-	then = function(id, onloadCallbackFn) {
+	then = (id) => function(onloadCallbackFn) {
 
 		onloadCallbackFn(id);
 
 		return this;
 
-	},
-
-	elementTempBase = function (tokenBuf__propLocation__node, v) {
-
-		const
-			newNode = tokenBuf__propLocation__node[2](),
-			id = {}
-		;
-		
-		newNode.querySelectorAll(`[${tokenBuf__propLocation__node[0]}]`).forEach(resolveQuery.bind(null, tokenBuf__propLocation__node, v, id));
-
-		return Object.assign(
-
-			newNode.childNodes,
-			fragmentTemp,
-			{ then: then.bind(null, id) }
-	
-		);
 	},
 
 	hCache = createCache((s) => {
@@ -176,7 +148,25 @@ const
 				: `<br ${tokenBuf}>`
 		);
 
-		return elementTempBase.bind(null, [tokenBuf, placeholder, cloneNode.bind(node, !0)]);
+		const resolve = resolverTemp(tokenBuf, placeholder);
+
+		return (v) => {
+
+			const
+				newNode = node.cloneNode(!0),
+				id = {}
+			;
+			
+			newNode.querySelectorAll(`[${tokenBuf}]`).forEach(resolve(v, id));
+	
+			return Object.assign(
+	
+				newNode.childNodes,
+				fragmentTemp,
+				{ then: then.bind(null, id) }
+		
+			);
+		};
 
 	}, true)
 ;
