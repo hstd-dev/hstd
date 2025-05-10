@@ -42,6 +42,8 @@ const
 		}
 	},
 
+	listenInput = listen("input"),
+
 	bindResolver = (id, ref, attrBody) => Reflect.ownKeys(attrBody).forEach((attrProp) => {
 
 		const
@@ -67,8 +69,7 @@ const
 
 				if("\0value\0checked\0".includes(`\0${attrProp}\0`) && attrProp in ref) {
 
-					listen(
-						"input",
+					listenInput(
 						({ target: { [attrProp]: value } }) => attrValue.$ = (
 							"number\0range".includes(ref.type)
 								? Number(value)
@@ -151,9 +152,9 @@ const
 				newNode.childNodes,
 				fragmentTemp,
 				{
-					then(onloadCallbackFn) {
+					then(...onloadCallbacks) {
 
-						onloadCallbackFn(id);
+						onloadCallbacks.forEach(fn => fn(id));
 				
 						return this;
 			

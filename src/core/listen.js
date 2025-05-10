@@ -13,7 +13,7 @@ const
 	 * 
 	 * @returns { void }
 	 */
-	listen = function (eventName, callbackFn, ref) {
+	listen = (eventName) => (callbackFn, ref) => {
 
 		if(!registeredEvent.includes(`\0${eventName}\0`)) {
 

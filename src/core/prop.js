@@ -1,3 +1,4 @@
+import { createCache } from "./cache.js";
 import { createPointer } from "./pointer.js"
 
 /**
@@ -10,14 +11,14 @@ export const createProp = (callback, nameFn/**, staticProperties */) => {
 
 	const
 
-		cache = {},
+		propCache = createCache((prop) => createPointer(callback(prop), undefined, { name: nameFn ? nameFn(prop) : "" })),
 
 		proxy = new Proxy({}, {
 			get(_, prop) {
 				return (
 					prop === Symbol.toPrimitive	? publisher
 					: prop === "$"				? publisher()
-					:							/** staticProperties[prop] || */(cache[prop] ||= createPointer(callback.bind(null, prop), undefined, { name: nameFn ? nameFn(prop) : "" })).publish()
+					:							propCache(prop).publish()
 				)
 			}
 		}),
@@ -32,7 +33,7 @@ export const createProp = (callback, nameFn/**, staticProperties */) => {
 
 		}),
 
-		publisher = () => bundled.publish()
+		publisher = bundled.publish.bind(bundled)
 	;
 
 	return proxy;

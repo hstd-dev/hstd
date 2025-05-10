@@ -12,7 +12,7 @@ const
 
 	css = createProp(
 
-		function(styleProp, styleValue, { style: styleDec }) {
+		(styleProp) => (styleValue, { style: styleDec }) => {
 
 			const
 				formedStylePropBuf = formStyleProp(styleProp)
