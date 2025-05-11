@@ -155,7 +155,7 @@ const
 					then(...onloadCallbacks) {
 
 						onloadCallbacks.forEach(fn => fn(id));
-				
+
 						return this;
 			
 					}
