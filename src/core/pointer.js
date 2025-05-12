@@ -222,16 +222,7 @@ const
 
 	ptrFromBuffer = new WeakMap(),
 
-	execWatcherTemp = function (buffer, /**bind end */ value, force, ptr) {
-		const watcherInfo = buffer[2];
-		(force || (value !== buffer[0]))
-			? (buffer[0] = value, buffer[1].forEach(fn => watcherInfo.get(fn)?.[1] ? fn(value) : 0))
-			: 0
-		;
-		return ptr;
-	},
-
-	recieverResolver = function(reciever, prop, /**bind end */ ...args) {
+	recieverResolver = (reciever, prop) => (...args) => {
 									
 		const
 			argMap = args.map((arg, i) => (
@@ -255,6 +246,15 @@ const
 
 	},
 
+	execWatcherTemp = (buffer) => function(value, force, ptr) {
+		const watcherInfo = buffer[2];
+		(force || (value !== buffer[0]))
+			? (buffer[0] = value, buffer[1].forEach(fn => watcherInfo.get(fn)?.[1] ? fn(value) : 0))
+			: 0
+		;
+		return ptr;
+	},
+
 	opBinder = createCache((prop) => createCache((buffer) => opTemp[prop].bind(ptrFromBuffer.get(buffer), buffer), true)),
 	
 	hasOp = hasOwnProperty.bind(opTemp),
@@ -271,7 +271,7 @@ const
 				watcherInfo,
 				signature + formattedOptions.name
 			],
-			execWatcher = execWatcherTemp.bind(null, buffer),
+			execWatcher = execWatcherTemp(buffer),
 			ptr = new Proxy(
 
 				Object.defineProperties(Object(function(...args) {
@@ -304,7 +304,7 @@ const
 								: (
 									isConstructedFrom(tmp[prop], Function)
 			
-										? recieverResolver.bind(null, reciever, prop)
+										? recieverResolver(reciever, prop)
 			
 										: reciever.into($ => $[prop])
 								)
