@@ -10,8 +10,6 @@ let
 
 const
 
-	styleElement = document.createElement("style"),
-
 	formerRegex = /[A-Z]{1}/g,
 
 	lowercaseMatcher = createCache((match) => "-" + match.toLowerCase()),
@@ -38,12 +36,14 @@ const
 			} else {
 
 				if(!isMicrotaskQueued) {
+
 					isMicrotaskQueued = true;
+
 					queueMicrotask(() => {
 						document.head.append(Object.assign(
 							document.createElement("style"),
 							{
-								textContent: Object.entries(cssRuleAssignmentTask).map(([tracker, assignmentTask]) => `[${tracker}]{${assignmentTask.join("")}}`).join("")
+								textContent: Object.entries(cssRuleAssignmentTask).map(([tracker, assignmentTask]) => `[${tracker}]{${assignmentTask}}`).join("")
 							}
 						));
 						isMicrotaskQueued = false;
@@ -51,18 +51,8 @@ const
 					});
 				}
 
-				(cssRuleAssignmentTask[tracker] ||= []).push(`${formedStylePropBuf}:${styleValue};`)
+				cssRuleAssignmentTask[tracker] = (cssRuleAssignmentTask[tracker] || "") + `${formedStylePropBuf}:${styleValue};`
 			}
-
-
-			// styleDec.setProperty(
-
-			// 	formedStylePropBuf,
-
-			// 	isPointer(styleValue)
-			// 		? styleValue.watch($ => styleDec.setProperty(formedStylePropBuf, $)).$
-			// 		: styleValue
-			// )
 		},
 
 		createCache(prop => "css-" + formStyleProp(prop))

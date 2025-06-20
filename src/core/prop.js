@@ -3,7 +3,7 @@ import { createPointer } from "./pointer.js"
 
 /**
  * 
- * @param { (prop: string, value: any, ref: HTMLElement) => void } callback 
+ * @param { (prop: string) => (value: any, ref: HTMLElement) => void } callback 
  * @param { (name: string) => string } nameFn 
  * @returns { object }
  */
