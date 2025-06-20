@@ -1,0 +1,1 @@
+export const random = (base = 36) => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(base);

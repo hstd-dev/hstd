@@ -3,6 +3,7 @@ import { isPointer } from "./core/pointer.js";
 import { createCache } from "./core/cache.js";
 import { isConstructedFrom } from "./core/checker.js";
 import { getPrototype } from "./core/prototype.js";
+import { random } from "./core/random.js";
 
 const
 
@@ -102,7 +103,7 @@ const
 			tokenBuf = "t"
 		;
 
-		while(joined.includes(tokenBuf += BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)).toString(36)));
+		while(joined.includes(tokenBuf += random()));
 
 		joined = s.join(tokenBuf);
 
