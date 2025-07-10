@@ -11,4 +11,4 @@ export const getTracker = createCache(ref => {
 
 	return tracker;
 
-}, true)
+}, !0)

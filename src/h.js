@@ -95,6 +95,24 @@ const
 		}
 	}),
 
+	resolveVBody = (ref, vBody) => {
+
+		if(vBody instanceof Promise) {
+
+			const comment = Object.assign(document.createElement("div"), { hidden: true });
+			vBody.then(resolveVBody.bind(null, comment));
+			ref.replaceWith(comment);
+
+		} else {
+			replaceWith.apply(ref, (
+				isConstructedFrom(vBody, Array)					? vBody.map(frag => [...frag]).flat(1)
+				: vBody instanceof NodeList						? vBody
+				: isPointer(vBody)								? vBody.text()
+				:												[new Text(vBody)]
+			))
+		}
+	},
+
 	hCache = createCache((s) => {
 
 		let
@@ -135,45 +153,39 @@ const
 			newNode.querySelectorAll(`[${tokenBuf}]`).forEach((ref, index) => {
 
 				const vBody = v[index];
+
+				// console.log(vBody)
 		
-				placeholder[index] ? bindResolver(id, ref, vBody)
-				: replaceWith.apply(ref, (
-						isConstructedFrom(vBody, Array)					? vBody.map(frag => [...frag]).flat(1)
-						: vBody[Symbol.toPrimitive]?.(HTML_IDENTIFIER)	? vBody
-						: isPointer(vBody)								? vBody.text()
-						:												[new Text(vBody)]
-					))
+				placeholder[index]
+					? bindResolver(id, ref, vBody)
+					: resolveVBody(ref, vBody);
 				;
 		
 				ref.removeAttribute(tokenBuf);
-			})
+			});
 	
-			return Object.assign(
+			const nodeList = Object.assign(
 	
 				newNode.childNodes,
 				fragmentTemp,
 				{
-					then(...onloadCallbacks) {
+					on(...onloadCallbacks) {
 
 						onloadCallbacks.forEach(fn => fn(id));
 
-						return this;
+						return nodeList;
 			
 					}
 				}
 		
 			);
+
+			return nodeList
 		};
 
-	}, true)
+	}, true),
+
+	h = (s, ...v) => hCache(s)(v)
 ;
 
-/**
- * @param { TemplateStringsArray } s
- * @param { (string | number | { [key: (string | symbol)]: any })[] } v
- * 
- * @returns { NodeList }
- */
-
-export const h = (s, ...v) => hCache(s)(v);
-
+export { h }

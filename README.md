@@ -115,7 +115,7 @@ function Canvas() {
     return html`
         <canvas ${{ id: "color", [on.click]: () => colorSwitch.switch() }}></canvas>
 
-    `.then(({ color }) => {
+    `.on(({ color }) => {
 
         const ctx = color.getContext("2d");
         colorSwitch.into($ => $ ? "red" : "blue").watch($ => {
