@@ -40,6 +40,16 @@ const
 				: targetValue
 			;
 
+		},
+
+		set(target, prop, newValue) {
+
+			console.log(prop)
+
+			if(prop !== "id") bindResolver(null, target, { [prop]: newValue });
+
+			return true;
+
 		}
 	},
 

@@ -32,7 +32,7 @@ const
 
 
 	globalPropPtrCache = {},
-
+	
 	$ = new Proxy(
 
 		(x, ...y) => (isFrozenArray(x) && isFrozenArray(x?.raw) ? createTemp : createPointer)(x, y),
