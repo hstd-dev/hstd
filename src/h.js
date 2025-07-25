@@ -147,16 +147,30 @@ const
 
 			let markerParent;
 
+			let isInitial = true;
+			let doReplace = true;
+
 			(async () => {
 
 				for await(const yielded of vBody) {
 
-					let currentMarker = markerBegin.nextSibling;
+					if(isInitial && yielded === "stream") {
+						doReplace = false;
+						continue;
+					};
 
-					while (currentMarker && currentMarker !== markerEnd) {
-						const next = currentMarker.nextSibling;
-						currentMarker.remove();
-						currentMarker = next;
+					isInitial = false;
+
+					if(doReplace) {
+
+						let currentMarker = markerBegin.nextSibling;
+	
+						while (currentMarker && currentMarker !== markerEnd) {
+							const next = currentMarker.nextSibling;
+							currentMarker.remove();
+							currentMarker = next;
+						}
+
 					}
 
 					markerParent ||= markerEnd.parentNode;
