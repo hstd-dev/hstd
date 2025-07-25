@@ -141,7 +141,8 @@ const
 
 			const
 				markerBegin = document.createComment(""),
-				markerEnd = document.createComment("")
+				markerEnd = document.createComment(""),
+				markerReplacement = document.createComment("")
 			;
 
 			let markerParent;
@@ -157,8 +158,6 @@ const
 						currentMarker.remove();
 						currentMarker = next;
 					}
-
-					const ;
 
 					markerParent ||= markerEnd.parentNode;
 
