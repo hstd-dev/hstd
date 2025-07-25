@@ -46,7 +46,7 @@ const
 
 			console.log(prop)
 
-			if(prop !== "id") bindResolver(null, target, { [prop]: newValue });
+			if(prop !== "id") resolveBinding(null, target, { [prop]: newValue });
 
 			return true;
 
@@ -55,7 +55,31 @@ const
 
 	listenInput = listen("input"),
 
-	bindResolver = (id, ref, attrBody) => Reflect.ownKeys(attrBody).forEach((attrProp) => {
+	// arrayOpCollection = {
+	// 	triggerSwapEvent() {
+			
+	// 	},
+	// 	insert(array, index) {
+
+	// 	}
+	// },
+
+	// arrayMethodArchive = Object.fromEntries(Object.getOwnPropertyNames(Array.prototype).filter(x => typeof [][x] == "function").map(x => {
+
+	// 	const ogMethod = (function() {}).apply.bind([][x]);
+
+	// 	return [x, function() {
+
+	// 		return ogMethod(this, arguments);
+	// 	}]
+
+	// })),
+
+	// resolveArray = (id, ref, array) => {
+	// 	Object.assign(array, Object.fromEntries(arrayMethodArchive))
+	// },
+
+	resolveBinding = (id, ref, attrBody) => Reflect.ownKeys(attrBody).forEach((attrProp) => {
 
 		const
 			attrValue = attrBody[attrProp],
@@ -70,7 +94,7 @@ const
 			const buf = attrPtr.$(attrValue, ref);
 			if(buf?.constructor !== Object) return;
 
-			bindResolver(id, ref, buf);
+			resolveBinding(id, ref, buf);
 
 		} else if(attrPropType == "string") {
 
@@ -113,6 +137,43 @@ const
 			vBody.then(resolveVBody.bind(null, comment));
 			ref.replaceWith(comment);
 
+		} else if(typeof vBody[Symbol.asyncIterator] === 'function') {
+
+			const
+				markerBegin = document.createComment(""),
+				markerEnd = document.createComment("")
+			;
+
+			let markerParent;
+
+			(async () => {
+
+				for await(const yielded of vBody) {
+
+					let currentMarker = markerBegin.nextSibling;
+
+					while (currentMarker && currentMarker !== markerEnd) {
+						const next = currentMarker.nextSibling;
+						currentMarker.remove();
+						currentMarker = next;
+					}
+
+					const ;
+
+					markerParent ||= markerEnd.parentNode;
+
+					markerParent.insertBefore(markerReplacement, markerEnd);
+
+					markerReplacement.replaceWith(...yielded);
+				}
+
+				markerBegin.remove();
+				markerEnd.remove();
+
+			})();
+
+			ref.replaceWith(markerBegin, markerEnd);
+			
 		} else {
 			replaceWith.apply(ref, (
 				isConstructedFrom(vBody, Array)					? vBody.map(frag => [...frag]).flat(1)
@@ -167,7 +228,7 @@ const
 				// console.log(vBody)
 		
 				placeholder[index]
-					? bindResolver(id, ref, vBody)
+					? resolveBinding(id, ref, vBody)
 					: resolveVBody(ref, vBody);
 				;
 		
