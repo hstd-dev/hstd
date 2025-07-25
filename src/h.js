@@ -142,7 +142,7 @@ const
 			const
 				markerBegin = document.createComment(""),
 				markerEnd = document.createComment(""),
-				markerReplacement = document.createComment("")
+				markerReplacement = Object.assign(document.createElement("div"), { hidden: true })
 			;
 
 			let markerParent;
@@ -154,7 +154,7 @@ const
 
 				for await(const yielded of vBody) {
 
-					if(isInitial && yielded === "stream") {
+					if(isInitial && yielded === "append") {
 						doReplace = false;
 						continue;
 					};
@@ -177,7 +177,7 @@ const
 
 					markerParent.insertBefore(markerReplacement, markerEnd);
 
-					markerReplacement.replaceWith(...yielded);
+					resolveVBody(markerReplacement, yielded);
 				}
 
 				markerBegin.remove();
