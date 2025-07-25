@@ -294,7 +294,7 @@ const
 								prop === "$"					? tmp
 								: prop === "refresh"			? execWatcher.bind(null, tmp, !0, reciever)
 								: prop === "constructor"		? !0
-				
+								: prop === Symbol.asyncIterator	? false
 				
 								: prop === PTR_IDENTIFIER		? !0
 								: prop === Symbol.hasInstance	? () => !1

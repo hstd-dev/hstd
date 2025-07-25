@@ -39,6 +39,7 @@ Visit live [demo](https://stackblitz.com/edit/web-platform-wikgugv3?devToolsHeig
     + [Class-model](#class-model)
     + [Interactive Binding](#Interactive-binding)
     + [Post-processing](#post-processing)
+    + [Works with Async Iterator](#works-with-async-iterator)
 
 - **[License](#license)**
 
@@ -123,6 +124,34 @@ function Canvas() {
             ctx.fillRect(0, 0, 100, 100);
         });
     })
+}
+```
+
+### Works with Async Iterator
+```javascript
+async function* Delayed() {
+
+    const
+        loadingDots = $(0, $ => $ % 3),
+        loadingDotsInterval = setInterval(() => loadingDots.$++, 700)
+    ;
+
+    yield html`
+        <span>Loading${$`.`.repeat(loadingDots.into($ => $ + 1))}</span>
+    `;
+    
+    const { name, age, link } = await fetch("/api/user/ihasq").then(res => res.json());
+
+    clearInterval(loadingDotsInterval);
+
+    yield html`
+        <div>
+            <label>${name}</label>
+            <label>${age}</label>
+            <label>${link}</label>
+        </div>
+    `;
+
 }
 ```
 
