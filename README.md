@@ -3,9 +3,14 @@
 <h4 align="center">Fast. Interactive. Web Interface.</h4>
 <br>
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/edit/vitejs-vite-vcga6uwx?file=main.js)
-[![NPM Version](https://img.shields.io/npm/v/hstd?logo=npm&color=%23CC3534)](https://www.npmjs.com/package/hstd)
-[![npm package minimized gzipped size](https://img.shields.io/bundlejs/size/hstd?logo=stackblitz)](https://bundlephobia.com/package/hstd)
+<div align="center">
+  <a href="https://stackblitz.com/edit/vitejs-vite-vcga6uwx?file=main.js"><img src="https://developer.stackblitz.com/img/open_in_stackblitz_small.svg" alt="Open in StackBlitz"></a>
+  <a href="https://www.npmjs.com/package/hstd"><img src="https://img.shields.io/npm/v/hstd?logo=npm&color=%23CC3534" alt="NPM version"></a>
+  <a href="https://bundlephobia.com/package/hstd"><img src="https://img.shields.io/bundlejs/size/hstd?logo=stackblitz" alt="NPM package minimized gzipped size"></a>
+</div>
+
+---
+
 ```javascript
 import { $, h as html, on } from "hstd"
 
