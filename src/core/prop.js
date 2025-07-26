@@ -23,15 +23,7 @@ export const createProp = (callback, nameFn/**, staticProperties */) => {
 			}
 		}),
 
-		bundled = createPointer((value) => {
-
-			const buf = {};
-
-			Reflect.ownKeys(value).forEach((prop) => buf[proxy[prop]] = value[prop]);
-
-			return buf;
-
-		}),
+		bundled = createPointer((value) => Reflect.ownKeys(value).reduce((acc, prop) => (acc[proxy[prop]] = value[prop], acc), {})),
 
 		publisher = bundled.publish.bind(bundled)
 	;
