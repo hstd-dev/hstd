@@ -5,12 +5,18 @@
  * @returns { (object: object) => any }
  */
 
-export const createCache = (setter, isWeak = false, map = new (isWeak ? WeakMap : Map)) => (object) => {
+export const createCache = (setter, isWeak = false) => {
 
-	let result;
+	const map = new (isWeak ? WeakMap : Map);
 
-	return map.has(object)
-		? map.get(object)
-		: (map.set(object, result = setter(object)), result)
-	;
+	return (object) => {
+
+		let result;
+   
+		return map.has(object)
+			? map.get(object)
+			: (map.set(object, result = setter(object)), result)
+		;
+	}
+
 }

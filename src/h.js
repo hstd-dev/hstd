@@ -46,7 +46,7 @@ const
 
 			console.log(prop)
 
-			if(prop !== "id") resolveBinding(null, target, { [prop]: newValue });
+			if(prop !== "id") resolveAttr(null, target, { [prop]: newValue });
 
 			return true;
 
@@ -79,10 +79,10 @@ const
 	// 	Object.assign(array, Object.fromEntries(arrayMethodArchive))
 	// },
 
-	resolveBinding = (id, ref, attrBody) => Reflect.ownKeys(attrBody).forEach((attrProp) => {
+	resolveAttr = (id, ref, attr) => Reflect.ownKeys(attr).forEach((attrProp) => {
 
 		const
-			attrValue = attrBody[attrProp],
+			attrValue = attr[attrProp],
 			attrPropType = typeof attrProp
 		;
 
@@ -94,7 +94,7 @@ const
 			const buf = attrPtr.$(attrValue, ref);
 			if(buf?.constructor !== Object) return;
 
-			resolveBinding(id, ref, buf);
+			resolveAttr(id, ref, buf);
 
 		} else if(attrPropType == "string") {
 
@@ -129,15 +129,15 @@ const
 		}
 	}),
 
-	resolveVBody = (ref, vBody) => {
+	resolveBody = (ref, body) => {
 
-		if(vBody instanceof Promise) {
+		if(body instanceof Promise) {
 
 			const comment = Object.assign(document.createElement("div"), { hidden: true });
-			vBody.then(resolveVBody.bind(null, comment));
+			body.then(resolveBody.bind(null, comment));
 			ref.replaceWith(comment);
 
-		} else if(typeof vBody[Symbol.asyncIterator] === 'function') {
+		} else if(typeof body[Symbol.asyncIterator] === 'function') {
 
 			const
 				markerBegin = document.createComment(""),
@@ -152,7 +152,7 @@ const
 
 			(async () => {
 
-				for await(const yielded of vBody) {
+				for await(const yielded of body) {
 
 					if(isInitial && yielded === "append") {
 						doReplace = false;
@@ -177,7 +177,7 @@ const
 
 					markerParent.insertBefore(markerReplacement, markerEnd);
 
-					resolveVBody(markerReplacement, yielded);
+					resolveBody(markerReplacement, yielded);
 				}
 
 				markerBegin.remove();
@@ -189,10 +189,10 @@ const
 			
 		} else {
 			replaceWith.apply(ref, (
-				isConstructedFrom(vBody, Array)					? vBody.map(frag => [...frag]).flat(1)
-				: vBody instanceof NodeList						? vBody
-				: isPointer(vBody)								? vBody.text()
-				:												[new Text(vBody)]
+				isConstructedFrom(body, Array)					? body.map(frag => [...frag]).flat(1)
+				: body instanceof NodeList						? body
+				: isPointer(body)								? body.text()
+				:												[new Text(body)]
 			))
 		}
 	},
@@ -230,19 +230,17 @@ const
 		return (v) => {
 
 			const
-				newNode = node.cloneNode(!0),
+				newNode = node.cloneNode(true),
 				id = {}
 			;
 			
 			newNode.querySelectorAll(`[${tokenBuf}]`).forEach((ref, index) => {
 
-				const vBody = v[index];
-
-				// console.log(vBody)
+				const body = v[index];
 		
 				placeholder[index]
-					? resolveBinding(id, ref, vBody)
-					: resolveVBody(ref, vBody);
+					? resolveAttr(id, ref, body)
+					: resolveBody(ref, body);
 				;
 		
 				ref.removeAttribute(tokenBuf);
