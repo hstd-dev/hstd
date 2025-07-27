@@ -11,9 +11,9 @@ const
 
 	HTML_IDENTIFIER = Symbol.for("HTML_IDENTIFIER"),
 
-	df = document.createDocumentFragment(),
+	DF = document.createDocumentFragment(),
 
-	fragmentTemp = {
+	FRAGMENT_TEMP = {
 
 		[Symbol.toPrimitive](hint) {
 			return (
@@ -29,7 +29,7 @@ const
 
 	},
 
-	refProxyHandler = {
+	REF_PROXY_HANDLER = {
 
 		get(target, prop) {
 
@@ -123,7 +123,7 @@ const
 
 			if(attrProp == "id" && !(attrValue in id)) {
 
-				id[attrValue] = new Proxy(ref, refProxyHandler);
+				id[attrValue] = new Proxy(ref, REF_PROXY_HANDLER);
 
 			}
 		}
@@ -145,10 +145,12 @@ const
 				markerReplacement = Object.assign(document.createElement("div"), { hidden: true })
 			;
 
-			let markerParent;
-
-			let isInitial = true;
-			let doReplace = true;
+			let
+				isInitial = true,
+				doReplace = true,
+				
+				markerParent
+			;
 
 			(async () => {
 
@@ -171,11 +173,9 @@ const
 							currentMarker = next;
 						}
 
-					}
+					};
 
-					markerParent ||= markerEnd.parentNode;
-
-					markerParent.insertBefore(markerReplacement, markerEnd);
+					(markerParent ||= markerEnd.parentNode).insertBefore(markerReplacement, markerEnd);
 
 					resolveBody(markerReplacement, yielded);
 				}
@@ -210,7 +210,7 @@ const
 		joined = s.join(tokenBuf);
 
 		const
-			TOKEN_LENGTH = tokenBuf.length,
+			tokenLength = tokenBuf.length,
 			attrMatch = [...joined.matchAll(new RegExp(`<(?:(!--|\\/[^a-zA-Z])|(\\/?[a-zA-Z][^>\\s]*)|(\\/?$))[\\s].*?${tokenBuf}`, "g"))]
 				.map(({ 0: { length }, index }) => index + length)
 			,
@@ -218,11 +218,11 @@ const
 			node = document.createElement("div")
 		;
 
-		df.appendChild(node);
+		DF.appendChild(node);
 
 		node.innerHTML = joined.replaceAll(
 			tokenBuf,
-			(_, index) => (placeholder[replacementCounter++] = attrMatch.includes(index + TOKEN_LENGTH))
+			(_, index) => (placeholder[replacementCounter++] = attrMatch.includes(index + tokenLength))
 				? tokenBuf
 				: `<br ${tokenBuf}>`
 		);
@@ -249,7 +249,7 @@ const
 			const nodeList = Object.assign(
 	
 				newNode.childNodes,
-				fragmentTemp,
+				FRAGMENT_TEMP,
 				{
 					on(...onloadCallbacks) {
 

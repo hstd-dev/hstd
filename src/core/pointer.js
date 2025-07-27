@@ -198,6 +198,19 @@ const
 				return ptr;
 
 			},
+
+			from(_, callback) {
+
+				let shouldRefresh = true;
+
+				callback(
+					(newValue) => shouldRefresh ? this.$ = newValue : newValue,
+					(shouldRefreshBoolean) => shouldRefresh = shouldRefreshBoolean
+				);
+
+				return this;
+
+			}
 		},
 
 		...Object.keys(logicOps).map(op => ({
