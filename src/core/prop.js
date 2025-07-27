@@ -1,4 +1,4 @@
-import { createCache } from "./cache.js";
+import { cache } from "./cache.js";
 import { createPointer } from "./pointer.js"
 
 /**
@@ -11,7 +11,7 @@ export const createProp = (callback, nameFn/**, staticProperties */) => {
 
 	const
 
-		propCache = createCache((prop) => createPointer(callback(prop), undefined, { name: nameFn ? nameFn(prop) : "" })),
+		propCache = cache((prop) => createPointer(callback(prop), undefined, { name: nameFn ? nameFn(prop) : "" })),
 
 		proxy = new Proxy({}, {
 			get(_, prop) {

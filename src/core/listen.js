@@ -1,10 +1,10 @@
-import { createCache } from "./cache.js";
+import { cache } from "./cache.js";
 
 let registeredEvent = "\0";
 
 const
 
-	targetCache = createCache(() => ({}), !0),
+	targetCache = cache(() => ({}), !0),
 
 	/**
 	 * @param { string } eventName

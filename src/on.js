@@ -1,6 +1,6 @@
 import { createProp } from "./core/prop.js";
 import { listen } from "./core/listen.js";
-import { createCache } from "./core/cache.js";
+import { cache } from "./core/cache.js";
 
 const
 
@@ -8,7 +8,7 @@ const
 
 		listen,
 
-		createCache(prop => "on." + prop)
+		cache(prop => "on." + prop)
 
 	)
 

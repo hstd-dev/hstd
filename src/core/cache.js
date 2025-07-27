@@ -5,7 +5,7 @@
  * @returns { (object: object) => any }
  */
 
-export const createCache = (setter, isWeak = false) => {
+export const cache = (setter, isWeak = false) => {
 
 	const map = new (isWeak ? WeakMap : Map);
 

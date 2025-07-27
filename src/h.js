@@ -1,6 +1,6 @@
 import { listen } from "./core/listen.js";
 import { isPointer } from "./core/pointer.js";
-import { createCache } from "./core/cache.js";
+import { cache } from "./core/cache.js";
 import { isConstructedFrom } from "./core/checker.js";
 import { getPrototype } from "./core/prototype.js";
 import { random } from "./core/random.js";
@@ -197,7 +197,7 @@ const
 		}
 	},
 
-	hCache = createCache((s) => {
+	hCache = cache((s) => {
 
 		let
 			joined = s.join(""),
