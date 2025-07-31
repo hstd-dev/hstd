@@ -99,14 +99,16 @@ function Main() {
 
 ### Interactive binding
 ```javascript
+import { $, h as html, io } from "hstd"
+
 function Linked() {
 
     const valueHolder = $(0)
 
     return html`
         <h1>these are linked!</h1>
-        <input ${{ value: valueHolder, type: "range" }}>
-        <input ${{ value: valueHolder, type: "range" }}>
+        <input ${{ [io.value]: valueHolder, type: "range" }}>
+        <input ${{ [io.value]: valueHolder, type: "range" }}>
         <label>value is ${valueHolder}</label>
     `
 }

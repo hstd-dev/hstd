@@ -98,29 +98,6 @@ const
 
 		} else if(attrPropType == "string") {
 
-			if(isPointer(attrValue)) {
-
-				ref[attrProp] = attrValue.watch($ => ref[attrProp] = $).$;
-
-				if("\0value\0checked\0".includes(`\0${attrProp}\0`) && attrProp in ref) {
-
-					listenInput(
-						({ target: { [attrProp]: value } }) => attrValue.$ = (
-							"number\0range".includes(ref.type)
-								? Number(value)
-								: value
-						),
-						ref
-					)
-
-				};
-
-			} else {
-
-				ref[attrProp] = attrValue;
-
-			}
-
 			if(attrProp == "id") {
 
 				if(isPointer(attrValue)) {
@@ -138,6 +115,10 @@ const
 				}
 
 
+			} else {
+
+				ref[attrProp] = attrValue;
+	
 			}
 		}
 	}),
