@@ -1,7 +1,7 @@
 import { listen } from "./core/listen.js";
 import { isPointer } from "./core/pointer.js";
 import { cache } from "./core/cache.js";
-import { isConstructedFrom } from "./core/checker.js";
+import { isAsyncGenerator, isConstructedFrom, isGenerator } from "./core/checker.js";
 import { getPrototype } from "./core/prototype.js";
 import { random } from "./core/random.js";
 
@@ -55,14 +55,14 @@ const
 
 	listenInput = listen("input"),
 
-	// arrayOpCollection = {
-	// 	triggerSwapEvent() {
+	arrayOpCollection = {
+		triggerSwapEvent() {
 			
-	// 	},
-	// 	insert(array, index) {
+		},
+		insert(array, index) {
 
-	// 	}
-	// },
+		}
+	},
 
 	// arrayMethodArchive = Object.fromEntries(Object.getOwnPropertyNames(Array.prototype).filter(x => typeof [][x] == "function").map(x => {
 
@@ -121,9 +121,22 @@ const
 
 			}
 
-			if(attrProp == "id" && !(attrValue in id)) {
+			if(attrProp == "id") {
 
-				id[attrValue] = new Proxy(ref, REF_PROXY_HANDLER);
+				if(isPointer(attrValue)) {
+
+					if(attrValue.$ === undefined) {
+
+						attrValue.$ = new Proxy(ref, REF_PROXY_HANDLER);
+
+					}
+
+
+				} else if(!(attrValue in id)) {
+
+					id[attrValue] = new Proxy(ref, REF_PROXY_HANDLER);
+				}
+
 
 			}
 		}
@@ -137,7 +150,9 @@ const
 			body.then(resolveBody.bind(null, comment));
 			ref.replaceWith(comment);
 
-		} else if(typeof body[Symbol.asyncIterator] === 'function') {
+		} else if(isAsyncGenerator(body)) {
+
+			// console.log(isGenerator(body))
 
 			const
 				markerBegin = document.createComment(""),
@@ -190,6 +205,7 @@ const
 		} else {
 			replaceWith.apply(ref, (
 				isConstructedFrom(body, Array)					? body.map(frag => [...frag]).flat(1)
+				// : isGenerator(body)								? body.next().value
 				: body instanceof NodeList						? body
 				: isPointer(body)								? body.text()
 				:												[new Text(body)]

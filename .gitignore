@@ -2,3 +2,4 @@ dev
 node_modules
 scripts
 deno.lock
+package-lock.json
