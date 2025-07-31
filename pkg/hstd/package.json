@@ -4,10 +4,6 @@
   "description": "simple library to build reactive, extensive, reusable web interface.",
   "type": "module",
   "main": "./src/mod.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "esbuild --minify --bundle --format=esm --outfile=./docs/mod.js ./src/mod.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hstd-dev/hstd.git"
@@ -20,10 +16,5 @@
   "exports": {
     ".": "./src/mod.js"
   },
-  "homepage": "https://hstd.io",
-  "devDependencies": {
-    "@hono/node-server": "^1.14.1",
-    "esbuild": "^0.25.2",
-    "hono": "^4.7.6"
-  }
+  "homepage": "https://hstd.io"
 }
