@@ -1,6 +1,6 @@
 import { cache } from "./core/cache.js"
-import { listen } from "./core/listen.js";
 import { createPointer } from "./core/pointer.js";
+import { listen } from "./core/listen.js";
 
 const
 

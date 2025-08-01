@@ -199,7 +199,7 @@ const
 
 			},
 
-			by(_, callback) {
+			from(_, callback) {
 
 				let shouldRefresh = true;
 
