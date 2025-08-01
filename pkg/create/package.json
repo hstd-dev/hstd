@@ -1,9 +1,8 @@
 {
-  "name": "hstd",
-  "version": "0.1.34",
-  "description": "Fast. Interactive. Web Interface.",
+  "name": "create-hstd",
+  "version": "0.0.1",
   "type": "module",
-  "main": "./src/mod.js",
+  "main": "./src/main.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hstd-dev/hstd.git"
@@ -12,9 +11,6 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/hstd-dev/hstd/issues"
-  },
-  "exports": {
-    ".": "./src/mod.js"
   },
   "homepage": "https://hstd.io"
 }

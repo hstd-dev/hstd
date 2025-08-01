@@ -1,10 +1,8 @@
 import { cache } from "./cache.js";
 
-let registeredEvent = "\0";
-
 const
 
-	targetCache = cache(() => ({}), !0),
+	targetCache = cache(() => ({}), true),
 
 	/**
 	 * @param { string } eventName
@@ -13,23 +11,16 @@ const
 	 * 
 	 * @returns { void }
 	 */
-	listen = (eventName) => (callbackFn, ref) => {
+	listen = cache((eventName) => {
 
-		if(!registeredEvent.includes(`\0${eventName}\0`)) {
+		addEventListener(
+			eventName,
+			e => targetCache(e.target)[eventName]?.forEach?.(x => x(e)),
+			{ passive: true }
+		);
 
-			globalThis.addEventListener(
-				eventName,
-				e => targetCache(e.target)[eventName]?.forEach?.(x => x(e)),
-				{ passive: !0 }
-			);
-
-			registeredEvent += eventName + "\0";
-
-		};
-
-		(targetCache(ref)[eventName] ||= []).push(callbackFn);
-
-	}
+		return (callbackFn, ref) => (targetCache(ref)[eventName] ||= []).push(callbackFn);
+	})
 ;
 
 export { listen };

@@ -1,7 +1,7 @@
 import { listen } from "./core/listen.js";
 import { isPointer } from "./core/pointer.js";
 import { cache } from "./core/cache.js";
-import { isAsyncGenerator, isConstructedFrom, isGenerator } from "./core/checker.js";
+import { isAsyncGenerator, isConstructedFrom } from "./core/checker.js";
 import { getPrototype } from "./core/prototype.js";
 import { random } from "./core/random.js";
 
@@ -33,6 +33,8 @@ const
 
 		get(target, prop) {
 
+			if(prop in Element.prototype) return;
+
 			const targetValue = target[prop];
 
 			return isConstructedFrom(targetValue, Function)
@@ -44,25 +46,21 @@ const
 
 		set(target, prop, newValue) {
 
-			console.log(prop)
-
-			if(prop !== "id") resolveAttr(null, target, { [prop]: newValue });
+			if(!(prop in Element.prototype)) resolveAttr(null, target, { [prop]: newValue });
 
 			return true;
 
 		}
 	},
 
-	listenInput = listen("input"),
-
-	arrayOpCollection = {
-		triggerSwapEvent() {
+	// arrayOpCollection = {
+	// 	triggerSwapEvent() {
 			
-		},
-		insert(array, index) {
+	// 	},
+	// 	insert(array, index) {
 
-		}
-	},
+	// 	}
+	// },
 
 	// arrayMethodArchive = Object.fromEntries(Object.getOwnPropertyNames(Array.prototype).filter(x => typeof [][x] == "function").map(x => {
 
@@ -79,7 +77,7 @@ const
 	// 	Object.assign(array, Object.fromEntries(arrayMethodArchive))
 	// },
 
-	resolveAttr = (id, ref, attr) => Reflect.ownKeys(attr).forEach((attrProp) => {
+	resolveAttr = (ref, attr, id) => Reflect.ownKeys(attr).forEach((attrProp) => {
 
 		const
 			attrValue = attr[attrProp],
@@ -94,7 +92,7 @@ const
 			const buf = attrPtr.$(attrValue, ref);
 			if(buf?.constructor !== Object) return;
 
-			resolveAttr(id, ref, buf);
+			resolveAttr(ref, buf, id);
 
 		} else if(attrPropType == "string") {
 
@@ -107,7 +105,6 @@ const
 						attrValue.$ = new Proxy(ref, REF_PROXY_HANDLER);
 
 					}
-
 
 				} else if(!(attrValue in id)) {
 
@@ -132,8 +129,6 @@ const
 			ref.replaceWith(comment);
 
 		} else if(isAsyncGenerator(body)) {
-
-			// console.log(isGenerator(body))
 
 			const
 				markerBegin = document.createComment(""),
@@ -212,7 +207,8 @@ const
 				.map(({ 0: { length }, index }) => index + length)
 			,
 			placeholder = [],
-			node = document.createElement("div")
+			node = document.createElement("div"),
+			cloneNode = node.cloneNode.bind(node, true)
 		;
 
 		DF.appendChild(node);
@@ -227,7 +223,7 @@ const
 		return (v) => {
 
 			const
-				newNode = node.cloneNode(true),
+				newNode = cloneNode(),
 				id = {}
 			;
 			
@@ -236,14 +232,14 @@ const
 				const body = v[index];
 		
 				placeholder[index]
-					? resolveAttr(id, ref, body)
-					: resolveBody(ref, body);
+					? resolveAttr(ref, body, id)
+					: resolveBody(ref, body)
 				;
 		
 				ref.removeAttribute(tokenBuf);
 			});
-	
-			const nodeList = Object.assign(
+
+			return Object.assign(
 	
 				newNode.childNodes,
 				FRAGMENT_TEMP,
@@ -252,14 +248,12 @@ const
 
 						onloadCallbacks.forEach(fn => fn(id));
 
-						return nodeList;
+						return this;
 			
 					}
 				}
 		
 			);
-
-			return nodeList
 		};
 
 	}, true),
