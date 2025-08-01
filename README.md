@@ -47,8 +47,8 @@ Visit live [demo](https://stackblitz.com/edit/web-platform-wikgugv3?devToolsHeig
     + [Works with Async Iterator](#works-with-async-iterator)
 
 - **[Packages](#packages)**
-    + [hstd](#hstd)
-    + [@hstd/wc](#@hstd/wc)
+    + [**```hstd```**](./pkg/hstd)
+    + [**```@hstd/wc```**](./pkg/wc)
 - **[License](#license)**
 
 ---
@@ -168,6 +168,9 @@ async function* Delayed() {
 ## Packages
 
 ### [```hstd```](./pkg/hstd)
+Hstd's fundamental core library.
+### [```@hstd/wc```](./pkg/wc)
+Hstd-to-WebComponents adapter.
 
 ## License
 
