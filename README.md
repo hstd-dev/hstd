@@ -42,10 +42,13 @@ Visit live [demo](https://stackblitz.com/edit/web-platform-wikgugv3?devToolsHeig
 
 - **[Examples](#examples)**
     + [Class-model](#class-model)
-    + [Interactive Binding](#Interactive-binding)
+    + [Interactive Binding](#interactive-binding)
     + [Post-processing](#post-processing)
     + [Works with Async Iterator](#works-with-async-iterator)
 
+- **[Packages](#packages)**
+    + [hstd](#hstd)
+    + [@hstd/wc](#@hstd/wc)
 - **[License](#license)**
 
 ---
@@ -161,6 +164,10 @@ async function* Delayed() {
 
 }
 ```
+
+## Packages
+
+### [```hstd```](./pkg/hstd)
 
 ## License
 
