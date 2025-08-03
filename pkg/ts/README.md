@@ -1,6 +1,5 @@
-# TypeScript HyperStandard Plugin
-# ⚠️This Repo Is Under Construction⚠️
-TypeScript server plugin that adds intellisense for [HyperStandard](https://github.com/PolymerLabs/HyperStandard) template strings
+# @hstd/ts
+TypeScript server plugin that adds intellisense for [HyperStandard](https://github.com/hstd-dev/hstd) template strings
 
 ![](documentation/preview.gif)
 
@@ -8,12 +7,11 @@ TypeScript server plugin that adds intellisense for [HyperStandard](https://gith
 
 **Features**
 
-- IntelliSense for html tags and attributes.
+- IntelliSense for html tags.
 - Quick info hovers on tags.
 - Formatting support.
 - Auto closing tags.
 - Folding html.
-- CSS completions in style blocks.
 - Works with literal html strings that contain placeholders.
 
 ## Usage
@@ -25,7 +23,7 @@ The simplest way to use this plugin is through the [HyperStandard](https://marke
 To use a specific version of this plugin with VS Code, first install the plugin and a copy of TypeScript in your workspace:
 
 ```bash
-npm install --save-dev typescript-hstd-plugin typescript
+npm install --save-dev @hstd/ts typescript
 ```
 
 Then add a `plugins` section to your [`tsconfig.json`](http://www.typescriptlang.org/docs/handbook/tsconfig-json.html) or [`jsconfig.json`](https://code.visualstudio.com/Docs/languages/javascript#_javascript-project-jsconfigjson)
@@ -35,7 +33,7 @@ Then add a `plugins` section to your [`tsconfig.json`](http://www.typescriptlang
   "compilerOptions": {
     "plugins": [
       {
-        "name": "typescript-hstd-plugin"
+        "name": "@hstd/ts"
       }
     ]
   }
@@ -51,7 +49,7 @@ This plugin works with the [Sublime TypeScript plugin](https://github.com/Micros
 First install the plugin and a copy of TypeScript in your workspace:
 
 ```bash
-npm install --save-dev typescript-hstd-plugin typescript
+npm install --save-dev @hstd/ts typescript
 ```
 
 And configure Sublime to use the workspace version of TypeScript by [setting the `typescript_tsdk`](https://github.com/Microsoft/TypeScript-Sublime-Plugin#note-using-different-versions-of-typescript) setting in Sublime:
@@ -69,7 +67,7 @@ Finally add a `plugins` section to your [`tsconfig.json`](http://www.typescriptl
   "compilerOptions": {
     "plugins": [
       {
-        "name": "typescript-hstd-plugin"
+        "name": "@hstd/ts"
       }
     ]
   }
@@ -82,7 +80,7 @@ This plugin works with the [Atom TypeScript plugin](https://atom.io/packages/ato
 First install the plugin and a copy of TypeScript in your workspace:
 
 ```bash
-npm install --save-dev typescript-hstd-plugin typescript
+npm install --save-dev @hstd/ts typescript
 ```
 
 Then add a `plugins` section to your [`tsconfig.json`](http://www.typescriptlang.org/docs/handbook/tsconfig-json.html) or [`jsconfig.json`](https://code.visualstudio.com/Docs/languages/javascript#_javascript-project-jsconfigjson) and restart Atom.
@@ -92,7 +90,7 @@ Then add a `plugins` section to your [`tsconfig.json`](http://www.typescriptlang
   "compilerOptions": {
     "plugins": [
       {
-        "name": "typescript-hstd-plugin"
+        "name": "@hstd/ts"
       }
     ]
   }
@@ -108,7 +106,7 @@ This plugin works [Visual Studio 2017 15.8+](https://www.visualstudio.com) using
 First install the plugin in your project:
 
 ```bash
-npm install --save-dev typescript-hstd-plugin
+npm install --save-dev @hstd/ts
 ```
 
 Then add a `plugins` section to your [`tsconfig.json`](http://www.typescriptlang.org/docs/handbook/tsconfig-json.html).
@@ -118,7 +116,7 @@ Then add a `plugins` section to your [`tsconfig.json`](http://www.typescriptlang
   "compilerOptions": {
     "plugins": [
       {
-        "name": "typescript-hstd-plugin"
+        "name": "@hstd/ts"
       }
     ]
   }
@@ -152,7 +150,7 @@ You can enable IntelliSense for other tag names by configuring `"tags"`:
   "compilerOptions": {
     "plugins": [
       {
-        "name": "typescript-hstd-plugin",
+        "name": "@hstd/ts",
         "tags": [
           "h",
           "html"
@@ -171,7 +169,7 @@ The plugin formats html code by default. You can disable this by setting `"forma
   "compilerOptions": {
     "plugins": [
       {
-        "name": "typescript-hstd-plugin",
+        "name": "@hstd/ts",
         "format": { "enabled": false }
       }
     ]
@@ -182,13 +180,13 @@ The plugin formats html code by default. You can disable this by setting `"forma
 
 ## Contributing
 
-To build the typescript-hstd-plugin, you'll need [Git](https://git-scm.com/downloads) and [Node.js](https://nodejs.org/).
+To build the @hstd/ts, you'll need [Git](https://git-scm.com/downloads) and [Node.js](https://nodejs.org/).
 
-First, [fork](https://help.github.com/articles/fork-a-repo/) the typescript-hstd-plugin repo and clone your fork:
+First, [fork](https://help.github.com/articles/fork-a-repo/) the @hstd/ts repo and clone your fork:
 
 ```bash
-git clone https://github.com/YOUR_GITHUB_ACCOUNT_NAME/typescript-hstd-plugin.git
-cd typescript-hstd-plugin
+git clone https://github.com/YOUR_GITHUB_ACCOUNT_NAME/@hstd/ts.git
+cd @hstd/ts
 ```
 
 Then install dev dependencies:
@@ -228,6 +226,6 @@ git push origin my-awesome-new-feature-branch
 ```
 
 Then [submit a pull request](https://help.github.com/articles/creating-a-pull-request/
-) against the Microsoft typescript-hstd-plugin repository.
+) against the Microsoft @hstd/ts repository.
 
 Please also see our [Code of Conduct](CODE_OF_CONDUCT.md).

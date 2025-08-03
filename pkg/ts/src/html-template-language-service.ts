@@ -244,7 +244,7 @@ export default class HtmlTemplateLanguageService implements TemplateLanguageServ
         const tagComplete = this.htmlLanguageService.doTagComplete(document, position, htmlDocument);
         if (!tagComplete) {
             return undefined;
-        }p
+        }
         // Html returns completions with snippet placeholders. Strip these out.
         return {
             newText: tagComplete.replace(/\$\d/g, ''),
