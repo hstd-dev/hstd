@@ -1,4 +1,4 @@
-import { Cache } from "./cache.js";
+import { Memo } from "./memo.js";
 import { Pointer } from "./pointer.js"
 
 /**
@@ -11,7 +11,7 @@ export const Prop = (callback, nameFn/**, staticProperties */) => {
 
 	const
 
-		propCache = Cache((prop) => Pointer(callback(prop), undefined, { name: nameFn ? nameFn(prop) : "" })),
+		propCache = Memo((prop) => Pointer(callback(prop), undefined, { name: nameFn ? nameFn(prop) : "" })),
 
 		proxy = new Proxy({}, {
 			get(_, prop) {

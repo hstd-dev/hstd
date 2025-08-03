@@ -1,7 +1,7 @@
-import { Cache } from "./cache.js";
+import { Memo } from "./memo.js";
 import { random } from "./random.js";
 
-export const getTracker = Cache(ref => {
+export const getTracker = Memo(ref => {
 
 	let tracker;
 

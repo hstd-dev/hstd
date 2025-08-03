@@ -1,4 +1,4 @@
-import { Cache } from "./core/cache.js"
+import { Memo } from "./core/memo.js"
 import { Pointer } from "./core/pointer.js";
 import { listen } from "./core/listen.js";
 
@@ -6,7 +6,7 @@ const
 
 	inputListener = listen("input"),
 
-	bindCache = Cache((name) => Pointer((pointer, ref) => {
+	bindCache = Memo((name) => Pointer((pointer, ref) => {
 
 		if(ref instanceof HTMLElement) {
 

@@ -1,6 +1,6 @@
 import { listen } from "./core/listen.js";
 import { isPointer } from "./core/pointer.js";
-import { Cache } from "./core/cache.js";
+import { Memo } from "./core/memo.js";
 import { isAsyncGenerator, isConstructedFrom } from "./core/checker.js";
 import { getPrototype } from "./core/prototype.js";
 import { random } from "./core/random.js";
@@ -189,7 +189,7 @@ const
 		}
 	},
 
-	hCache = Cache((s) => {
+	hCache = Memo((s) => {
 
 		let
 			joined = s.join(""),

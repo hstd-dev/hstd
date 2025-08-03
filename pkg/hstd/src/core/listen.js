@@ -1,8 +1,8 @@
-import { Cache } from "./cache.js";
+import { Memo } from "./memo.js";
 
 const
 
-	targetCache = Cache(() => ({}), true),
+	targetCache = Memo(() => ({}), true),
 
 	/**
 	 * @param { string } eventName
@@ -11,7 +11,7 @@ const
 	 * 
 	 * @returns { void }
 	 */
-	listen = Cache((eventName) => {
+	listen = Memo((eventName) => {
 
 		addEventListener(
 			eventName,

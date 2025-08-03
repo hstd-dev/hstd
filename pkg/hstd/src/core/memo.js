@@ -1,11 +1,11 @@
 /**
- * @description Cache() stores its setters calculation result.
+ * @description Memo() stores its setters calculation result.
  * 
  * @param { (object: (void | object)) => any } setter 
  * @returns { (object: object) => any }
  */
 
-export const Cache = (setter, isWeak = false) => {
+export const Memo = (setter, isWeak = false) => {
 
 	const map = new (isWeak ? WeakMap : Map);
 

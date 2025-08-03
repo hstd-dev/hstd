@@ -1,11 +1,11 @@
 import { listen } from "./core/listen.js";
-import { Cache } from "./core/cache.js";
+import { Memo } from "./core/memo.js";
 import { isFrozenArray, isConstructedFrom } from "./core/checker.js";
 import { Pointer, createSignature, isPointer } from "./core/pointer.js";
 
 const
 
-	getLiteralTempCache = Cache((s) => {
+	getLiteralTempCache = Memo((s) => {
 
 		const code = createSignature();
 

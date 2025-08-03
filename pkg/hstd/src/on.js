@@ -1,4 +1,4 @@
-import { Cache } from "./core/cache.js";
+import { Memo } from "./core/memo.js";
 import { Prop } from "./core/prop.js";
 
 import { listen } from "./core/listen.js";
@@ -9,7 +9,7 @@ const
 
 		listen,
 
-		Cache(prop => "on." + prop)
+		Memo(prop => "on." + prop)
 
 	)
 

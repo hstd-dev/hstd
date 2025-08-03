@@ -1,5 +1,5 @@
 import { isConstructedFrom } from "./checker.js";
-import { Cache } from "./cache.js";
+import { Memo } from "./memo.js";
 
 const
 
@@ -268,7 +268,7 @@ const
 		return ptr;
 	},
 
-	opBinder = Cache((prop) => Cache((buffer) => opTemp[prop].bind(ptrFromBuffer.get(buffer), buffer), true)),
+	opBinder = Memo((prop) => Memo((buffer) => opTemp[prop].bind(ptrFromBuffer.get(buffer), buffer), true)),
 	
 	hasOp = hasOwnProperty.bind(opTemp),
 
