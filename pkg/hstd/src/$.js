@@ -1,11 +1,11 @@
 import { listen } from "./core/listen.js";
-import { cache } from "./core/cache.js";
+import { Cache } from "./core/cache.js";
 import { isFrozenArray, isConstructedFrom } from "./core/checker.js";
-import { createPointer, createSignature, isPointer } from "./core/pointer.js";
+import { Pointer, createSignature, isPointer } from "./core/pointer.js";
 
 const
 
-	getLiteralTempCache = cache((s) => {
+	getLiteralTempCache = Cache((s) => {
 
 		const code = createSignature();
 
@@ -23,7 +23,7 @@ const
 					: vt
 			)),
 			refreshTemp = (x = 0) => temp.replaceAll(tempMatcherRegex, () => vMap[x++]),
-			ptr = createPointer(refreshTemp())
+			ptr = Pointer(refreshTemp())
 		;
 
 		return ptr;
@@ -35,7 +35,7 @@ const
 	
 	$ = new Proxy(
 
-		(x, ...y) => (isFrozenArray(x) && isFrozenArray(x?.raw) ? createTemp : createPointer)(x, y),
+		(x, ...y) => (isFrozenArray(x) && isFrozenArray(x?.raw) ? createTemp : Pointer)(x, y),
 
 		{
 			get: (_, prop) => {
@@ -51,7 +51,7 @@ const
 
 				if(!tmp && !isConstructedFrom(globalThis[prop], Function)) {
 
-					tmp = globalPropPtrCache[prop] = createPointer(globalThis[prop]);
+					tmp = globalPropPtrCache[prop] = Pointer(globalThis[prop]);
 
 					listen(
 						"resize",
@@ -68,7 +68,7 @@ const
 	)
 ;
 
-const globalPtr = createPointer(globalThis);
+const globalPtr = Pointer(globalThis);
 
 /**
  * 
@@ -77,4 +77,4 @@ const globalPtr = createPointer(globalThis);
  * @param { object } options 
  * @returns { object }
  */
-export { $ };
+export { $, Pointer };

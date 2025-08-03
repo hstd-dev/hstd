@@ -1,6 +1,6 @@
-import { createProp } from "./core/prop.js";
+import { Prop } from "./core/prop.js";
 import { isPointer } from "./core/pointer.js"
-import { cache } from "./core/cache.js";
+import { Cache } from "./core/cache.js";
 import { getTracker } from "./core/tracker.js";
 
 let
@@ -12,11 +12,11 @@ const
 
 	formerRegex = /[A-Z]{1}/g,
 
-	lowercaseMatcher = cache((match) => "-" + match.toLowerCase()),
+	lowercaseMatcher = Cache((match) => "-" + match.toLowerCase()),
 
-	formStyleProp = cache((styleProp) => styleProp.replaceAll(formerRegex, lowercaseMatcher)),
+	formStyleProp = Cache((styleProp) => styleProp.replaceAll(formerRegex, lowercaseMatcher)),
 
-	css = createProp(
+	css = Prop(
 
 		(styleProp) => (styleValue, ref) => {
 
@@ -55,7 +55,7 @@ const
 			}
 		},
 
-		cache(prop => "css-" + formStyleProp(prop))
+		Cache(prop => "css-" + formStyleProp(prop))
 
 	)
 ;

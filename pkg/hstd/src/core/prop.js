@@ -1,5 +1,5 @@
-import { cache } from "./cache.js";
-import { createPointer } from "./pointer.js"
+import { Cache } from "./cache.js";
+import { Pointer } from "./pointer.js"
 
 /**
  * 
@@ -7,11 +7,11 @@ import { createPointer } from "./pointer.js"
  * @param { (name: string) => string } nameFn 
  * @returns { object }
  */
-export const createProp = (callback, nameFn/**, staticProperties */) => {
+export const Prop = (callback, nameFn/**, staticProperties */) => {
 
 	const
 
-		propCache = cache((prop) => createPointer(callback(prop), undefined, { name: nameFn ? nameFn(prop) : "" })),
+		propCache = Cache((prop) => Pointer(callback(prop), undefined, { name: nameFn ? nameFn(prop) : "" })),
 
 		proxy = new Proxy({}, {
 			get(_, prop) {
@@ -23,7 +23,7 @@ export const createProp = (callback, nameFn/**, staticProperties */) => {
 			}
 		}),
 
-		bundled = createPointer((value) => Reflect.ownKeys(value).reduce((acc, prop) => (acc[proxy[prop]] = value[prop], acc), {})),
+		bundled = Pointer((value) => Reflect.ownKeys(value).reduce((acc, prop) => (acc[proxy[prop]] = value[prop], acc), {})),
 
 		publisher = bundled.publish.bind(bundled)
 	;

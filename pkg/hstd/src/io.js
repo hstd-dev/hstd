@@ -1,12 +1,12 @@
-import { cache } from "./core/cache.js"
-import { createPointer } from "./core/pointer.js";
+import { Cache } from "./core/cache.js"
+import { Pointer } from "./core/pointer.js";
 import { listen } from "./core/listen.js";
 
 const
 
 	inputListener = listen("input"),
 
-	bindCache = cache((name) => createPointer((pointer, ref) => {
+	bindCache = Cache((name) => Pointer((pointer, ref) => {
 
 		if(ref instanceof HTMLElement) {
 
@@ -23,10 +23,4 @@ const
 	}))
 ;
 
-export const io = new Proxy({}, {
-
-	get(_, prop) {
-
-		return bindCache(prop);
-	}
-})
+export const io = new Proxy({}, { get: (_, prop) => bindCache(prop) })

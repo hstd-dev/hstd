@@ -1,5 +1,5 @@
 import { isConstructedFrom } from "./checker.js";
-import { cache } from "./cache.js";
+import { Cache } from "./cache.js";
 
 const
 
@@ -94,7 +94,7 @@ const
 							// : isPtr(tmp) ? newPtr
 							: newPtr.$ = tmp;
 					},
-					newPtr = createPointer()
+					newPtr = Pointer()
 				;
 
 				binder(value);
@@ -187,7 +187,7 @@ const
 
 			timeout(_, delay) {
 
-				const ptr = createPointer(this.$);
+				const ptr = Pointer(this.$);
 				let timeoutIdBuf;
 
 				this.watch($ => {
@@ -268,11 +268,11 @@ const
 		return ptr;
 	},
 
-	opBinder = cache((prop) => cache((buffer) => opTemp[prop].bind(ptrFromBuffer.get(buffer), buffer), true)),
+	opBinder = Cache((prop) => Cache((buffer) => opTemp[prop].bind(ptrFromBuffer.get(buffer), buffer), true)),
 	
 	hasOp = hasOwnProperty.bind(opTemp),
 
-	createPointer = (value, [setter, options] = []) => {
+	Pointer = (value, [setter, options] = []) => {
 
 		const
 			watchers = [],
@@ -371,4 +371,4 @@ Object.defineProperty(globalThis, signature, {
 });
 
 
-export { createPointer, createSignature, isPointer }
+export { Pointer, createSignature, isPointer }

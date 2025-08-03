@@ -1,8 +1,8 @@
-import { cache } from "./cache.js";
+import { Cache } from "./cache.js";
 
 const
 
-	targetCache = cache(() => ({}), true),
+	targetCache = Cache(() => ({}), true),
 
 	/**
 	 * @param { string } eventName
@@ -11,7 +11,7 @@ const
 	 * 
 	 * @returns { void }
 	 */
-	listen = cache((eventName) => {
+	listen = Cache((eventName) => {
 
 		addEventListener(
 			eventName,

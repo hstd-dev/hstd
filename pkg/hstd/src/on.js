@@ -1,14 +1,14 @@
-import { createProp } from "./core/prop.js";
+import { Prop } from "./core/prop.js";
 import { listen } from "./core/listen.js";
-import { cache } from "./core/cache.js";
+import { Cache } from "./core/cache.js";
 
 const
 
-	on = createProp(
+	on = Prop(
 
 		listen,
 
-		cache(prop => "on." + prop)
+		Cache(prop => "on." + prop)
 
 	)
 
