@@ -168,9 +168,11 @@ async function* Delayed() {
 ## Packages
 
 ### [```hstd```](./pkg/hstd)
-Hstd's fundamental core library.
+HyperStandard's fundamental core library.
 ### [```@hstd/wc```](./pkg/wc)
-Hstd-to-WebComponents adapter.
+HyperStandard-to-WebComponents adapter.
+### [```@hstd/ts```](./pkg/ts)
+TypeScript language service plugin that adds IntelliSense for HyperStandard templates.
 
 ## License
 
