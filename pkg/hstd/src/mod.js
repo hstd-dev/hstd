@@ -4,5 +4,4 @@ export * from "./on.js"
 export * from "./css.js"
 export * from "./io.js"
 
-export * from "./memo.js";
-export * from "./prop.js";
+export * from "./core/mod.js";

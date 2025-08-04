@@ -77,4 +77,4 @@ const globalPtr = Pointer(globalThis);
  * @param { object } options 
  * @returns { object }
  */
-export { $, Pointer };
+export { $ };

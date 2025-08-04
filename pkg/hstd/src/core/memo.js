@@ -7,16 +7,17 @@
 
 export const Memo = (setter, isWeak = false) => {
 
-	const map = new (isWeak ? WeakMap : Map);
+	const
+		map = new (isWeak ? WeakMap : Map),
+		get = map.get.bind(map),
+		set = map.set.bind(map)
+	;
 
 	return (object) => {
 
-		let result;
+		let result = get(object);
    
-		return map.has(object)
-			? map.get(object)
-			: (map.set(object, result = setter(object)), result)
-		;
+		return result || (set(object, result = setter(object)), result);
 	}
 
 }

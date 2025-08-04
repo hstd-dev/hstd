@@ -1,1 +1,0 @@
-export { Prop } from "./core/prop.js"
