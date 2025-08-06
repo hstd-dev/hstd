@@ -1,4 +1,4 @@
-import { h } from "hstd";
+import { h, Pointer } from "hstd";
 
 const
 	WC_TAG_VALIDATOR = /^[a-z](?:[a-z0-9]|[a-z0-9][\-\.][a-z0-9])*-(?:[a-z0-9]|[a-z0-9][\-\.][a-z0-9])*$/,
@@ -8,7 +8,7 @@ const
 			body,
 			new Proxy({}, {
 				get(_, prop) {
-					return body[prop] ||= $("");
+					return body[prop] ||= Pointer("");
 				}
 			})
 		]
@@ -38,14 +38,22 @@ const define = (componentDeclarations) => Object.entries(componentDeclarations).
 	const
 		initAttrBuf = createAttrState(),
 		initNodeListBuf = h`${component(initAttrBuf[1])}`,
-		initAttrList = Object.keys(initAttrBuf[0])
+		initAttrKeys = initAttrBuf[0],
+		initAttrList = Object.keys(initAttrKeys).reduce((acc, attr) => {
+			if(attr.includes(":")) throw new Error("Cannot include property that starts with ':', which is reserved for binding type identifier.");
+			acc.push(attr, `${attr}:number`, `${attr}:boolean`);
+			return acc;
+		}, []);
 	;
 
 	if(customElements.get(name)) {
+
 		let altCount = -1;
 		while(customElements.get(`${name}-${(++altCount).toString(36)}`));
 		name += `-${altCount.toString(36)}`;
 	};
+
+	const declareSwapTag = 
 
 	customElements.define(name, class extends HTMLElement {
 
@@ -55,13 +63,41 @@ const define = (componentDeclarations) => Object.entries(componentDeclarations).
 
 		constructor() {
 			super();
-			this[IS_CONNECTED] = new Promise(r => this[CONNECT] = r);
-			this[ATTR_BUF] = isInit ? (isInit = false, initAttrBuf) : createAttrState();
+			const thisRef = this;
+			const [attrPtrList] = thisRef[ATTR_BUF] = isInit ? (isInit = false, initAttrBuf) : createAttrState();
+			thisRef[IS_CONNECTED] = new Promise(r => thisRef[CONNECT] = r);
+			Object.defineProperties(thisRef, initAttrKeys.reduce((acc, key) => {
+				const ptr = attrPtrList[name];
+				acc[key] = {
+					get() {
+						return ptr.$;
+					},
+					set(newValue) {
+						return ptr.$ = newValue;
+					},
+					configurable: false,
+					writable: false,
+				}
+				return acc;
+			}, {}))
 		}
 		
 		async attributeChangedCallback(name, _, newValue) {
 			await this[IS_CONNECTED];
-			this[ATTR_BUF][0][name].$ = newValue;
+
+			const temp = (
+				name.endsWith(":number") ? Number
+				: name.endsWith(":boolean") ? Boolean
+				: String
+			);
+
+			this.removeAttribute(name);
+
+			name = name.includes(":") ? name.slice(0, name.indexOf(":")) : name;
+
+			this.setAttribute(name, newValue)
+
+			console.log(this[ATTR_BUF][0][name].$ = temp(newValue));
 		}
 
 		connectedCallback() {
