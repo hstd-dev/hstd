@@ -47,6 +47,10 @@ const
 					return;
 				}
 
+				if(prop === "kv") {
+
+				}
+
 				let tmp = globalPropPtrCache[prop];
 
 				if(!tmp && !isConstructedFrom(globalThis[prop], Function)) {

@@ -1,0 +1,26 @@
+{
+  "name": "@hstd/std",
+  "version": "0.0.1",
+  "description": "Fast. Interactive. Web Interface.",
+  "type": "module",
+  "main": "./src/mod.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hstd-dev/hstd.git"
+  },
+  "scripts": {
+    "build": "esbuild --bundle --minify --format=esm --outfile=../../docs/mod.js src/mod.js"
+  },
+  "author": "ihasq",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hstd-dev/hstd/issues"
+  },
+  "exports": {
+    ".": "./src/mod.js"
+  },
+  "homepage": "https://hstd.io",
+  "devDependencies": {
+    "esbuild": "^0.25.8"
+  }
+}

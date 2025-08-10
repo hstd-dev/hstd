@@ -1,7 +1,7 @@
 {
-  "name": "hstd",
+  "name": "@hstd/db",
   "version": "0.1.38",
-  "description": "Fast. Interactive. Web Interface.",
+  "description": "HyperStandard's Pointer meets Storage.",
   "type": "module",
   "main": "./src/mod.js",
   "repository": {

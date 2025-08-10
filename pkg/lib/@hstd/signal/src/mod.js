@@ -1,0 +1,1 @@
+export const signal = (pointer) => new Signal.State(pointer.watch(mainSignal.set.bind(mainSignal)).$);

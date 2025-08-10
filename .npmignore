@@ -3,3 +3,4 @@ docs
 .gitignore
 deno.json
 deno.lock
+jsr.json
