@@ -1,6 +1,6 @@
 {
   "name": "hstd",
-  "version": "0.1.40",
+  "version": "0.1.41",
   "description": "Fast. Interactive. Web Interface.",
   "type": "module",
   "main": "./export.js",
