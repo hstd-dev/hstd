@@ -208,7 +208,7 @@ const
 
 		const
 			tokenLength = tokenBuf.length,
-			attrMatch = [...joined.matchAll(new RegExp(`(?<=\\s)${tokenBuf}(?=\\s*=|\\s|>)`, 'g'))]
+			attrMatch = [...joined.matchAll(new RegExp(`(?<=\\s)${tokenBuf}(?=\\s*(=|/|>|\\s))`, 'g'))]
 				.map(({ 0: { length }, index }) => index + length)
 			,
 			placeholder = [],
