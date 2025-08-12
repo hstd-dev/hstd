@@ -1,0 +1,10 @@
+{
+	"name": "@hstd/wc",
+	"version": "0.1.1",
+	"imports": {
+		"hstd": "jsr:@hstd/std@^0.1.33"
+	},
+	"exports": {
+		".": "./src/mod.ts"
+	}
+}
