@@ -1,12 +1,11 @@
-import { Memo } from "./core/memo.js"
-import { Pointer } from "./core/pointer.js";
 import { listen } from "./core/listen.js";
+import { Prop } from "./core/prop.js";
 
 const
 
 	inputListener = listen("input"),
 
-	bindCache = Memo((name) => Pointer((pointer, ref) => {
+	io = Prop((name) => (pointer, ref) => {
 
 		if(ref instanceof HTMLElement) {
 
@@ -20,7 +19,7 @@ const
 
 			ref[name] = pointer.watch($ => fromInput ? 0 : ref[name] = $).$;
 		};
-	}))
+	})
 ;
 
-export const io = new Proxy({}, { get: (_, prop) => bindCache(prop) })
+export { io }
