@@ -1,6 +1,5 @@
 {
 	"scripts": {
 		"build": "bundle "
-	},
-	"version": "0.0.1"
+	}
 }
