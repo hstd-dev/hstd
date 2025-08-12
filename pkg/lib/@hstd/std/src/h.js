@@ -9,6 +9,8 @@ const
 
 	{ replaceWith } = getPrototype(Element),
 
+	// { createElement, document.createComment, document.createDocumentFragment } = document,
+
 	HTML_IDENTIFIER = Symbol.for("HTML_IDENTIFIER"),
 
 	DF = document.createDocumentFragment(),
@@ -98,17 +100,19 @@ const
 
 			if(attrProp == "id") {
 
+				const refProxy = new Proxy(ref, REF_PROXY_HANDLER);
+
 				if(isPointer(attrValue)) {
 
 					if(attrValue.$ === undefined) {
 
-						attrValue.$ = new Proxy(ref, REF_PROXY_HANDLER);
+						attrValue.$ = refProxy;
 
 					}
 
 				} else if(!(attrValue in id)) {
 
-					id[attrValue] = new Proxy(ref, REF_PROXY_HANDLER);
+					id[attrValue] = refProxy;
 				}
 
 
@@ -120,11 +124,13 @@ const
 		}
 	}),
 
+	createHiddenDiv = () => Object.assign(document.createElement("div"), { hidden: true }),
+
 	resolveBody = (ref, body) => {
 
 		if(body instanceof Promise) {
 
-			const comment = Object.assign(document.createElement("div"), { hidden: true });
+			const comment = createHiddenDiv();
 			body.then(resolveBody.bind(null, comment));
 			ref.replaceWith(comment);
 
@@ -133,7 +139,7 @@ const
 			const
 				markerBegin = document.createComment(""),
 				markerEnd = document.createComment(""),
-				markerReplacement = Object.assign(document.createElement("div"), { hidden: true })
+				markerReplacement = createHiddenDiv()
 			;
 
 			let
@@ -148,7 +154,7 @@ const
 				for await(const yielded of body) {
 
 					if(isInitial && yielded === "append") {
-						doReplace = false;
+						doReplace = isInitial = false;
 						continue;
 					};
 
@@ -181,7 +187,6 @@ const
 		} else {
 			replaceWith.apply(ref, (
 				isConstructedFrom(body, Array)					? body.map(frag => [...frag]).flat(1)
-				// : isGenerator(body)								? body.next().value
 				: body instanceof NodeList						? body
 				: isPointer(body)								? body.text()
 				:												[new Text(body)]
@@ -203,7 +208,7 @@ const
 
 		const
 			tokenLength = tokenBuf.length,
-			attrMatch = [...joined.matchAll(new RegExp(`<(?:(!--|\\/[^a-zA-Z])|(\\/?[a-zA-Z][^>\\s]*)|(\\/?$))[\\s].*?${tokenBuf}`, "g"))]
+			attrMatch = [...joined.matchAll(new RegExp(`(?<=\\s)${tokenBuf}(?=\\s*=|\\s|>)`, 'g'))]
 				.map(({ 0: { length }, index }) => index + length)
 			,
 			placeholder = [],

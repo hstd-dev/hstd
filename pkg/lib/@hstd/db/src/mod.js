@@ -1,12 +1,12 @@
 import { Pointer, Memo } from "hstd";
 
-export const NOT_FOUND = Symbol('NOT_FOUND');
+const NOT_FOUND = Symbol('NOT_FOUND');
 
 const performOp = (mode, callback) => new Promise((resolve, reject) => {
-	const request = indexedDB.open('kv', 1);
+	const request = indexedDB.open('hstd-db', 1);
 
 	request.onupgradeneeded = (event) => {
-		event.target.result.createObjectStore('s');
+		event.target.result.createObjectStore('0');
 	};
 
 	request.onerror = () => reject(request.error);
@@ -25,6 +25,7 @@ const performOp = (mode, callback) => new Promise((resolve, reject) => {
 });
 
 
+
 export const get = (key) =>
 	performOp('readonly', (store) => store.get(key))
 		.then((value) => (value === undefined ? NOT_FOUND : value));
@@ -33,13 +34,21 @@ export const set = (key, value) =>
 	performOp('readwrite', (store) => store.put(value, key));
 
 const dbMemo = Memo((key) => {
-	const pointer = Pointer();
-	pointer.watch($ => set(key, $))
-	return (init) => {
-
+	let init = true;
+	let changeBuf = NOT_FOUND;
+	const pointer = Pointer().watch($ => {
+		if(changeBuf === NOT_FOUND) {
+			queueMicrotask(() => (set(key, changeBuf), changeBuf = NOT_FOUND));
+		}
+		changeBuf = $;
+	});
+	return async (value, setter, options) => {
+		if(init && )
 	};
 })
 
 export const $$ = new Proxy({}, {
-	get: (_, key) => (init) => dbMemo(key)(init)
-})
+	get: (_, key) => dbMemo(key)
+});
+
+const count = await $$.count(0);

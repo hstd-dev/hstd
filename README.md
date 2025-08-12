@@ -15,7 +15,7 @@
 import { $, h as html, on } from "hstd"
 
 
-function Component() {
+const Component = () => {
 
     const count = $(0);
 
@@ -88,7 +88,7 @@ const buttonClass = $((alertText) => ({
     [on.click]: () => alert(alertText)
 }))
 
-function Main() {
+const Main = () => {
 
     const count = $(0);
 
@@ -104,7 +104,7 @@ function Main() {
 ```javascript
 import { $, h as html, io } from "hstd"
 
-function Linked() {
+const Linked = () => {
 
     const valueHolder = $(0)
 
@@ -119,7 +119,7 @@ function Linked() {
 
 ### Post-processing
 ```javascript
-function Canvas() {
+const Canvas = () => {
 
     const colorSwitch = $(true);
 
@@ -139,20 +139,28 @@ function Canvas() {
 
 ### Works with Async Iterator
 ```javascript
-async function* Delayed() {
+import { $, h as html, io, Task } from "hstd";
+
+
+const Iterated = async function*() {
 
     const
-        loadingDots = $(0, $ => $ % 3),
-        loadingDotsInterval = setInterval(() => loadingDots.$++, 700)
+        user = $(''),
+        formTask = Task()
     ;
 
     yield html`
-        <span>Loading${$`.`.repeat(loadingDots.into($ => $ + 1))}</span>
+        <label>Show user <input ${{ [io.value]: user }}/></label>
+        <button ${{ [on.click]: () => formTask.resolve() }}>submit</button>
+    `;
+
+    await formTask;
+
+    yield html`
+        <label>Loading...</label>
     `;
     
-    const { name, age, link } = await fetch("/api/user/ihasq").then(res => res.json());
-
-    clearInterval(loadingDotsInterval);
+    const { name, age, link } = await fetch(`/api/user/${user.$}`).then(res => res.json());
 
     yield html`
         <div>

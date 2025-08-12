@@ -10,6 +10,7 @@
   "author": "ihasq",
   "type": "module",
   "main": "src/mod.js",
+  "types": "./src/define.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -285,6 +285,7 @@ const
 				signature + formattedOptions.name
 			],
 			execWatcher = execWatcherTemp(buffer),
+
 			ptr = new Proxy(
 
 				Object.defineProperties(Object(function(...args) {
