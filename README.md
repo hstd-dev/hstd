@@ -146,15 +146,15 @@ const Iterated = async function*() {
 
     const
         user = $(''),
-        formTask = Task()
+        next = Task()
     ;
 
     yield html`
         <label>Show user <input ${{ [io.value]: user }}/></label>
-        <button ${{ [on.click]: () => formTask.resolve() }}>submit</button>
+        <button ${{ [on.click]: () => next(true) }}>submit</button>
     `;
 
-    await formTask;
+    await next();
 
     yield html`
         <label>Loading...</label>

@@ -1,4 +1,3 @@
-import { listen } from "./core/listen.js";
 import { isPointer } from "./core/pointer.js";
 import { Memo } from "./core/memo.js";
 import { isAsyncGenerator, isConstructedFrom } from "./core/checker.js";
@@ -137,8 +136,8 @@ const
 		} else if(isAsyncGenerator(body)) {
 
 			const
-				markerBegin = document.createComment(""),
-				markerEnd = document.createComment(""),
+				markerBegin = createHiddenDiv(),
+				markerEnd = createHiddenDiv(),
 				markerReplacement = createHiddenDiv()
 			;
 
@@ -186,10 +185,10 @@ const
 			
 		} else {
 			replaceWith.apply(ref, (
-				isConstructedFrom(body, Array)					? body.map(frag => [...frag]).flat(1)
-				: body instanceof NodeList						? body
-				: isPointer(body)								? body.text()
-				:												[new Text(body)]
+				isConstructedFrom(body, Array)	? body.map(frag => [...frag]).flat(1)
+				: body instanceof NodeList		? body
+				: isPointer(body)				? body.text()
+				:								[new Text(body)]
 			))
 		}
 	},
@@ -197,22 +196,18 @@ const
 	hCache = Memo((s) => {
 
 		let
-			joined = s.join(""),
-			replacementCounter = 0,
-			tokenBuf = "t"
+			tokenBuf = "t" + random(),
+			joined = s.join(tokenBuf),
+			replacementCounter = 0
 		;
 
-		while(joined.includes(tokenBuf += random()));
-
-		joined = s.join(tokenBuf);
-
 		const
-			tokenLength = tokenBuf.length,
-			attrMatch = [...joined.matchAll(new RegExp(`(?<=\\s)${tokenBuf}(?=\\s*(=|/|>|\\s))`, 'g'))]
+			tokenLength = tokenBuf.length,              
+			bodyMatch = [...joined.matchAll(new RegExp(tokenBuf + "(?!([^<]*>))", 'g'))]
 				.map(({ 0: { length }, index }) => index + length)
 			,
 			placeholder = [],
-			node = document.createElement("div"),
+			node = createHiddenDiv(),
 			cloneNode = node.cloneNode.bind(node, true)
 		;
 
@@ -220,9 +215,9 @@ const
 
 		node.innerHTML = joined.replaceAll(
 			tokenBuf,
-			(_, index) => (placeholder[replacementCounter++] = attrMatch.includes(index + tokenLength))
-				? tokenBuf
-				: `<br ${tokenBuf}>`
+			(_, index) => (placeholder[replacementCounter++] = bodyMatch.includes(index + tokenLength))
+				? `<br ${tokenBuf}>`
+				: tokenBuf
 		);
 
 		return (v) => {
@@ -237,8 +232,8 @@ const
 				const body = v[index];
 		
 				placeholder[index]
-					? resolveAttr(ref, body, id)
-					: resolveBody(ref, body)
+					? resolveBody(ref, body)
+					: resolveAttr(ref, body, id)
 				;
 		
 				ref.removeAttribute(tokenBuf);
