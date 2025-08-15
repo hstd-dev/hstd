@@ -16,14 +16,15 @@ Object.assign(document.body.style, {
 	backgroundColor: "#02030f"
 });
 
-const logoWidth = $.innerWidth.mul(0.3).into($ => $ > 160 ? 160 : $);
 
 const basicBlack = $(0x02030f)
 const textBlack = "#000001"
 const basicWhite = "#f3f4ff"
 
+const $innerWidth = $(innerWidth).from($ => addEventListener("resize", () => $(innerWidth), { passive: true }));
 
-const isPC = $.innerWidth.into($ => $ > 665)
+const logoWidth = $innerWidth.into($ => ($ *= 0.3, $ > 160 ? 160 : $));
+const isPC = $innerWidth.into($ => $ > 665)
 
 const buttonStyle = {
 	[css]: {
@@ -57,7 +58,7 @@ document.body.append(...html`
 			src: "./resources/hstd.svg",
 			[css]: {
 				width: $`${logoWidth}px`,
-				marginLeft: $`${$.innerWidth.sub(logoWidth).div(2)}px`,
+				marginLeft: $`${$innerWidth.sub(logoWidth).div(2)}px`,
 				marginTop: "100px",
 				marginBottom: "40px"
 			}
@@ -93,7 +94,7 @@ document.body.append(...html`
 				height: $`${isPC.into($ => $ ? 40 : 100)}px`,
 				marginTop: "60px",
 				marginBottom: "150px",
-				marginLeft: $`${$.innerWidth.sub(isPC.into($ => $ ? 380 : 210)).div(2)}px`,
+				marginLeft: $`${$innerWidth.sub(isPC.into($ => $ ? 380 : 210)).div(2)}px`,
 
 				display: "grid",
 				gridTemplateColumns: isPC.into($ => $ ? "auto auto" : ""),

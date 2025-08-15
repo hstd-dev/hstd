@@ -19,5 +19,4 @@ export const Memo = (setter, isWeak = false) => {
    
 		return result || (set(object, result = setter(object)), result);
 	}
-
 }

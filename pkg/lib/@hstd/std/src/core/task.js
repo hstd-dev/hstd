@@ -2,19 +2,21 @@ import { NOT_FOUND } from "./constant.js";
 
 export const Task = () => {
 
-	let index = 0, unresolved = true;
+	let unresolved = true;
 
 	const
 		res = [],
 		rej = [],
+
 		resrejFn = (isResolve, value) => {
 			if(unresolved) {
 				unresolved = false;
 				queueMicrotask(() => unresolved = true);
-				(isResolve ? res : rej)[index](value);
-				res[index] = rej[index++] = undefined;
+				(isResolve ? res : rej).forEach(x => x(value));
+				res.length = rej.length = 0;
 			}
 		},
+
 		resolve = resrejFn.bind(null, true),
 		reject = resrejFn.bind(null, false)
 	;
@@ -24,6 +26,5 @@ export const Task = () => {
 		result === NOT_FOUND		? new Promise((rs, rj) => { res.push(rs); rej.push(rj); })
 		: result instanceof Error	? reject(result)
 		:							resolve(result)
-
 	)
-}
+};
