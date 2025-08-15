@@ -127,18 +127,18 @@ const
 
 	resolveBody = (ref, body) => {
 
+		const markerReplacement = createHiddenDiv();
+
 		if(body instanceof Promise) {
 
-			const comment = createHiddenDiv();
-			body.then(resolveBody.bind(null, comment));
-			ref.replaceWith(comment);
+			body.then(resolveBody.bind(null, markerReplacement));
+			ref.replaceWith(markerReplacement);
 
 		} else if(isAsyncGenerator(body)) {
 
 			const
 				markerBegin = createHiddenDiv(),
-				markerEnd = createHiddenDiv(),
-				markerReplacement = createHiddenDiv()
+				markerEnd = createHiddenDiv()
 			;
 
 			let
@@ -183,11 +183,17 @@ const
 
 			ref.replaceWith(markerBegin, markerEnd);
 			
+		} else if(isPointer(body)) {
+
+			const text = new Text(body.watch($ => text.textContent = $).$);
+
+			ref.replaceWith(text);
+
 		} else {
+
 			replaceWith.apply(ref, (
 				isConstructedFrom(body, Array)	? body.map(frag => [...frag]).flat(1)
 				: body instanceof NodeList		? body
-				: isPointer(body)				? body.text()
 				:								[new Text(body)]
 			))
 		}

@@ -175,16 +175,6 @@ const
 
 			},
 
-			text() {
-
-				const text = new Text(this.$);
-
-				this.watch($ => text.textContent = $);
-
-				return [text]
-
-			},
-
 			timeout(_, delay) {
 
 				const ptr = Pointer(this.$);
