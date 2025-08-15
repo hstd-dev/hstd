@@ -175,11 +175,11 @@ const Iterated = async function*() {
 
 ## Packages
 
-### [```hstd```](./pkg/hstd)
+### [```hstd```](./pkg/lib/hstd)
 HyperStandard's fundamental core library.
-### [```@hstd/wc```](./pkg/wc)
+### [```@hstd/wc```](./pkg/lib/@hstd/wc)
 HyperStandard-to-WebComponents adapter.
-### [```@hstd/ts```](./pkg/ts)
+### [```@hstd/ts```](./pkg/lib/@hstd/ts)
 TypeScript language service plugin that adds IntelliSense for HyperStandard templates.
 
 ## License
