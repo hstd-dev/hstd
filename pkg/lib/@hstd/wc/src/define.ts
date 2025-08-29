@@ -18,7 +18,7 @@ const
 	CONNECT = Symbol()
 ;
 
-const define = (componentDeclarations: { [key: string]: (...any) => (NodeList | Promise<NodeList> | AsyncGenerator<NodeList>) }): void => Object.entries(componentDeclarations).forEach(([name, component]) => {
+const define = (componentDeclarations: { [key: string]: [{ [key: string]: (StringConstructor | NumberConstructor | BooleanConstructor) }, (...any) => (NodeList | Promise<NodeList> | AsyncGenerator<NodeList>)] }): void => Object.entries(componentDeclarations).forEach(([name, [attributes, component]]) => {
 
 	if(!WC_TAG_VALIDATOR.test(name)) {
 		if(WC_TAG_VALIDATOR.test(`hstd-${name}`)) {
@@ -51,7 +51,7 @@ const define = (componentDeclarations: { [key: string]: (...any) => (NodeList | 
 	customElements.define(name, class extends HTMLElement {
 
 		static get observedAttributes() {
-			return initAttrList;
+			return Object.keys(attributes);
 		}
 
 		constructor() {
@@ -78,19 +78,7 @@ const define = (componentDeclarations: { [key: string]: (...any) => (NodeList | 
 		async attributeChangedCallback(name, _, newValue) {
 			await this[IS_CONNECTED];
 
-			const temp = (
-				name.endsWith(":number") ? Number
-				: name.endsWith(":boolean") ? Boolean
-				: String
-			);
-
-			this.removeAttribute(name);
-
-			name = name.includes(":") ? name.slice(0, name.indexOf(":")) : name;
-
-			this.setAttribute(name, newValue)
-
-			console.log(this[ATTR_BUF][0][name].$ = temp(newValue));
+			this.setAttribute(name, attributes[name] === Boolean ? newValue === "true" : attributes[name](newValue))
 		}
 
 		connectedCallback() {

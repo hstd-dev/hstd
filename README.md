@@ -171,6 +171,9 @@ const Iterated = async function*() {
     `;
 
 }
+
+
+document.body.append(...html(Iterated()))
 ```
 
 ## Packages

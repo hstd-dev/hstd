@@ -12,11 +12,13 @@ function MyComponent({ name, age, fruit }) {
     `;
 }
 
-define({ "my-component": MyComponent });
+define({
+    "my-component": [{ name: String, age: Number, fruit: String }, MyComponent]
+});
 ```
 
 ```html
-<my-component name="Josh" age:number="9" fruit="orange">
+<my-component name="Josh" age="9" fruit="orange">
     <!-- #shadow-root -->
     <h1>My name is Josh, I can't drive, and orange is my trend!</h1>
 </my-component>

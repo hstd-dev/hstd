@@ -1,14 +1,12 @@
 import { isPointer } from "./core/pointer.js";
 import { Memo } from "./core/memo.js";
-import { isAsyncGenerator, isConstructedFrom } from "./core/checker.js";
+import { isAsyncGenerator, isConstructedFrom, isFrozenArray } from "./core/checker.js";
 import { getPrototype } from "./core/prototype.js";
 import { random } from "./core/random.js";
 
 const
 
 	{ replaceWith } = getPrototype(Element),
-
-	// { createElement, document.createComment, document.createDocumentFragment } = document,
 
 	HTML_IDENTIFIER = Symbol.for("HTML_IDENTIFIER"),
 
@@ -23,7 +21,6 @@ const
 					: hint === HTML_IDENTIFIER
 			)
 		},
-
 		toString() {
 			return this[Symbol.toPrimitive]("string")
 		}
@@ -264,7 +261,14 @@ const
 
 	}, true),
 
-	h = (s, ...v) => hCache(s)(v)
+	h = (s, ...v) => {
+
+		if(isFrozenArray(s)) return hCache(s)(v);
+
+		const ref = createHiddenDiv();
+		resolveBody(ref, s);
+		return ref;
+	}
 ;
 
 export { h }
