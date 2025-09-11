@@ -1,53 +1,19 @@
 # Roadmap
 
 ### Index
-+ [**`$.this`**](#this)
-+ [**Pointer.prototype.parent**](#pointerprototypeparent)
+#### High Priority
 + [**ArrayPointer**](#arraypointer)
 
-## `$.this`
-#### Phase: 0 (Draft)
-
-`$.this` is a special pointer. it makes possible to create `this` referencing before initialization.\
-Used for style calculation and so much more.
-
-```javascript
-import { $ } from "hstd";
-
-const dynamicInnerWidth = $(innerWidth, {
-	from: $ => addEventListener("resize", () => $(innerWidth), { passive: true })
-})
-
-const style = $(() => ({
-	[css]: $({
-		height: $.this.width.to($ => $ / 2),
-		width: dynamicInnerWidth
-	})
-}))
-```
-
-## Pointer.prototype.up()
-#### Phase: 0 (Draft)
-
-```javascript
-import { $ } from "hstd";
-
-const parent = $(0);
-
-const child = parent.to($ => $ + 1);
-
-child.up(); // parent
-
-const grandchild = child.to($ => $ * 2);
-
-grandchild.up(); // child
-grandchild.up(Infinity); // parent
-```
+#### Low Priority
++ [**`$.this`**](#this)
++ [**Pointer.prototype.parent**](#pointerprototypeparent)
 
 ## ArrayPointer
-#### Phase: 0 (Draft)
+**Phase: 0 (Draft)**\
+**Priority: High**
 
-`ArrayPointer` is an extended edition of `Array`. It supports legacy `Array` methods, which incldues some original, additional methods like `swap()`, `swapOf()`.
+`ArrayPointer` is an extended edition of `Array`, which is considered as the final lacked piece of HyperStandard.\
+It supports legacy `Array` methods, which incldues some original, additional methods like `swap()`, `swapOf()`.
 
 ```javascript
 import { $, h as html } from "hstd";
@@ -82,4 +48,46 @@ const frag = html`
 		<li>I like peach.</li>
 	</ul>
 */
+```
+
+## `$.this`
+**Phase: 0 (Draft)**\
+**Priority: Low**
+
+`$.this` is a special pointer. it makes possible to create `this` referencing before initialization.\
+Used for style calculation and so much more.
+
+```javascript
+import { $ } from "hstd";
+
+const dynamicInnerWidth = $(innerWidth, {
+	from: $ => addEventListener("resize", () => $(innerWidth), { passive: true })
+})
+
+const style = $(() => ({
+	[css]: $({
+		height: $.this.width.up()[0].to($ => $ / 2),
+		width: $`${dynamicInnerWidth}px`
+	})
+}))
+```
+
+## Pointer.prototype.parent
+**Phase: 0 (Draft)**\
+**Priority: Low**
+
+```javascript
+import { $ } from "hstd";
+
+const parent = $(0);
+
+const child = parent.to($ => $ + 1);
+
+child.parent; // parent
+
+const temped = $`${child} + 2 = ${child.to($ => $ + 2)}`;
+
+const parentOfTemped = temped.parent // Array
+parentOfTemped[0] // child
+parentOfTemped[1].parent // child
 ```
