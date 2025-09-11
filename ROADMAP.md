@@ -26,7 +26,7 @@ const style = $(() => ({
 }))
 ```
 
-## Pointer.prototype.parent
+## Pointer.prototype.up()
 #### Phase: 0 (Draft)
 
 ```javascript
@@ -36,12 +36,12 @@ const parent = $(0);
 
 const child = parent.to($ => $ + 1);
 
-child.parent(); // parent
+child.up(); // parent
 
 const grandchild = child.to($ => $ * 2);
 
-grandchild.parent(); // child
-grandchild.parent(Infinity); // parent
+grandchild.up(); // child
+grandchild.up(Infinity); // parent
 ```
 
 ## ArrayPointer
