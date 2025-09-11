@@ -1,12 +1,15 @@
 # Roadmap
 
-### Index
-#### High Priority
+### Table of Contents
+#### 🚀 High Priority
 + [**ArrayPointer**](#arraypointer)
 
-#### Low Priority
+#### 🚶 Medium Priority
 + [**`$.this`**](#this)
 + [**Pointer.prototype.parent**](#pointerprototypeparent)
+
+#### 🐛 Low Priority
++ [**Suspense**](#suspense)
 
 ## ArrayPointer
 **Phase: 0 (Draft)**\
@@ -52,7 +55,7 @@ const frag = html`
 
 ## `$.this`
 **Phase: 0 (Draft)**\
-**Priority: Low**
+**Priority: Medium**
 
 `$.this` is a special pointer. it makes possible to create `this` referencing before initialization.\
 Used for style calculation and so much more.
@@ -66,15 +69,15 @@ const dynamicInnerWidth = $(innerWidth, {
 
 const style = $(() => ({
 	[css]: $({
-		height: $.this.width.up()[0].to($ => $ / 2),
+		height: $.this.width.up[0].to($ => $ / 2),
 		width: $`${dynamicInnerWidth}px`
 	})
 }))
 ```
 
-## Pointer.prototype.parent
+## Pointer.prototype.up
 **Phase: 0 (Draft)**\
-**Priority: Low**
+**Priority: Medium**
 
 ```javascript
 import { $ } from "hstd";
@@ -83,11 +86,33 @@ const parent = $(0);
 
 const child = parent.to($ => $ + 1);
 
-child.parent; // parent
+child.up; // parent
 
 const temped = $`${child} + 2 = ${child.to($ => $ + 2)}`;
 
-const parentOfTemped = temped.parent // Array
+const parentOfTemped = temped.up // Array
 parentOfTemped[0] // child
 parentOfTemped[1].parent // child
+```
+
+## Suspense
+**Phase: 2 (Implemention)**\
+**Priority: Low**
+
+Reference implemention of Suspense which completely relys on AsyncGenerator support.
+```javascript
+import { h as html, Suspense } from "hstd";
+
+const frag = html(
+	Suspense({ fallback: html`<label>Loading...</label>` }, SomeAsyncComponent())
+)
+```
+
+...which is rewritable in 4 lines.
+
+```javascript
+export const Suspense = async function*({ fallback }, body) {
+	yield* fallback;
+	yield* await body;
+}
 ```
