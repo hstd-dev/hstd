@@ -262,6 +262,40 @@ const
 	
 	hasOp = hasOwnProperty.bind(opTemp),
 
+	// OP_ON = 0x0000,
+
+	// pointerOp = {
+	// 	on() {
+			
+	// 	}
+	// },
+
+	// newPointerHandler = {
+	// 	get(buffer, prop) {
+	// 		if(prop === "$") return buffer();
+
+	// 	},
+	// 	set(buffer, prop, newValue) {
+	// 		if(prop === "$") buffer(newValue);
+	// 		return true;
+	// 	}
+	// },
+
+	// UNDEFINED = Symbol(),
+
+	// NewPointer = (value, [setter, options] = []) => {
+	// 	const
+	// 		buffer = [],
+	// 		watchers = [],
+	// 		watcherMap = new WeakMap,
+	// 		execWatcher = (newValue) => watchers.forEach(watcher => watcher?.(newValue)),
+	// 		valueRef = (newValue = UNDEFINED) => newValue == UNDEFINED ? value : (Object.is(newValue, value) ? 0 : execWatcher(value = newValue), value),
+	// 		pointer = new Proxy(valueRef, newPointerHandler)
+	// 	;
+
+	// 	buffer.push((newValue = value) => value = newValue, pointer);
+	// },
+
 	Pointer = (value, [setter, options] = []) => {
 
 		const

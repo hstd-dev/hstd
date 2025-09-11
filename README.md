@@ -176,6 +176,15 @@ const Iterated = async function*() {
 document.body.append(...html(Iterated()))
 ```
 
+## Context
+```javascript
+import { ctx } from "hstd"
+
+const UsingCtx = ({ [ctx]: { logger } }) => {
+    
+};
+```
+
 ## Packages
 
 ### [```hstd```](./pkg/lib/hstd)
