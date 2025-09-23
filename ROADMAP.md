@@ -3,6 +3,7 @@
 ### Table of Contents
 #### 🚀 High Priority
 + [**ArrayPointer**](#arraypointer)
++ [**Pointer-based**](#pointer-based rendering)
 
 #### 🚶 Medium Priority
 + [**`$.this`**](#this)

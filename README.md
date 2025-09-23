@@ -28,7 +28,7 @@ const Component = () => {
 }
 
 
-document.body.append(...Component());
+document.body[html] = Component();
 ```
 
 **hstd** = HyperStandard is a minimal JavaScript library to build fast, interactive, extensible web interface.
@@ -173,16 +173,7 @@ const Iterated = async function*() {
 }
 
 
-document.body.append(...html(Iterated()))
-```
-
-## Context
-```javascript
-import { ctx } from "hstd"
-
-const UsingCtx = ({ [ctx]: { logger } }) => {
-    
-};
+document.body[html] = Iterated();
 ```
 
 ## Packages

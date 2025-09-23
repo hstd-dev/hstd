@@ -224,13 +224,33 @@ const hCache = Memo((s) => {
 
 }, true);
 
-const h = (s, ...v) => {
+const appenderFlag = Symbol();
 
-	if(isFrozenArray(s)) return hCache(s)(v);
+const h = Object.assign(
+	(s, ...v) => {
 
-	const ref = createHiddenDiv();
-	resolveBody(ref, s);
-	return ref;
-};
+		if(isFrozenArray(s)) return hCache(s)(v);
+
+		const ref = createHiddenDiv();
+		resolveBody(ref, s);
+		return ref;
+	},
+	{
+		[Symbol.toPrimitive](hint) {
+			return hint == "string" ? appenderFlag : undefined;
+		}
+	}
+);
+	
+Object.defineProperty(HTMLElement.prototype, appenderFlag, {
+	// value: undefined,
+	set(fragment) {
+		this.textContent = "";
+		this.append(...h`${fragment}`);
+		return fragment;
+	},
+	enumerable: true,
+	configurable: true
+})
 
 export { h }
