@@ -1,6 +1,6 @@
 {
   "name": "@hstd/std",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Fast. Interactive. Web Interface.",
   "type": "module",
   "main": "./src/mod.js",

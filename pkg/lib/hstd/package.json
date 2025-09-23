@@ -1,6 +1,6 @@
 {
   "name": "hstd",
-  "version": "0.1.42",
+  "version": "0.1.44",
   "description": "Fast. Interactive. Web Interface.",
   "type": "module",
   "main": "./export.js",
@@ -21,7 +21,7 @@
   },
   "homepage": "https://hstd.io",
   "dependencies": {
-    "@hstd/std": "0.0.6"
+    "@hstd/std": "0.0.7"
   },
   "devDependencies": {
     "esbuild": "^0.25.8"
