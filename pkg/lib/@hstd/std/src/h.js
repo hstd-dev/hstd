@@ -4,6 +4,8 @@ import { isAsyncGenerator, isConstructedFrom, isFrozenArray } from "./core/check
 import { getPrototype } from "./core/prototype.js";
 import { random } from "./core/random.js";
 
+import { registerFragment } from "@hstd/core"
+
 const { replaceWith } = getPrototype(Element);
 
 const HTML_IDENTIFIER = Symbol.for("HTML_IDENTIFIER");
@@ -254,3 +256,5 @@ Object.defineProperty(HTMLElement.prototype, appenderFlag, {
 })
 
 export { h }
+
+// @hstd/dom
