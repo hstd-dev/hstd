@@ -146,15 +146,15 @@ const Iterated = async function*() {
 
     const
         user = $(''),
-        next = Task()
+        [untilSubmit, submit] = Promise.withResolvers()
     ;
 
     yield html`
         <label>Show user <input ${{ [io.value]: user }}/></label>
-        <button ${{ [on.click]: () => next(true) }}>submit</button>
+        <button ${{ [on.click]: () => resolve(true) }}>submit</button>
     `;
 
-    await next();
+    await untilSubmit;
 
     yield html`
         <label>Loading...</label>
