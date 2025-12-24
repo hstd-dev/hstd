@@ -139,7 +139,7 @@ const Canvas = () => {
 
 ### Works with Async Iterator
 ```javascript
-import { $, h as html, io, Task } from "hstd";
+import { $, h as html, io } from "hstd";
 
 
 const Iterated = async function*() {
