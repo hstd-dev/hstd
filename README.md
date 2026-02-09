@@ -151,10 +151,10 @@ const Iterated = async function*() {
 
     yield html`
         <label>Show user <input ${{ [io.value]: user }}/></label>
-        <button ${{ [on.click]: submit }}>submit</button>
+        <button ${{ [on.click]: resolve }}>submit</button>
     `;
 
-    await untilSubmit;
+    await promise;
 
     yield html`
         <label>Loading...</label>
