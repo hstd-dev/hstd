@@ -146,7 +146,7 @@ const Iterated = async function*() {
 
     const
         user = $(''),
-        [untilSubmit, submit] = Promise.withResolvers()
+        { promise, resolve } = Promise.withResolvers()
     ;
 
     yield html`
