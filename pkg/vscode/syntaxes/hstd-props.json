@@ -1,0 +1,46 @@
+{
+	"fileTypes": [],
+	"injectionSelector": "L:source.js -comment, L:source.jsx -comment, L:source.js.jsx -comment, L:source.ts -comment, L:source.tsx -comment",
+	"patterns": [
+		{
+			"comment": "css.propertyName — CSS property binding",
+			"match": "\\b(css)\\s*\\.\\s*([a-zA-Z]\\w*)",
+			"captures": {
+				"1": { "name": "support.module.css.hstd" },
+				"2": { "name": "support.type.property-name.css.hstd" }
+			}
+		},
+		{
+			"comment": "on.eventName — DOM event binding",
+			"match": "\\b(on)\\s*\\.\\s*([a-zA-Z]\\w*)",
+			"captures": {
+				"1": { "name": "support.module.on.hstd" },
+				"2": { "name": "support.function.event.hstd" }
+			}
+		},
+		{
+			"comment": "io.propertyName — two-way binding",
+			"match": "\\b(io)\\s*\\.\\s*([a-zA-Z]\\w*)",
+			"captures": {
+				"1": { "name": "support.module.io.hstd" },
+				"2": { "name": "support.type.property-name.io.hstd" }
+			}
+		},
+		{
+			"comment": "$.this.propertyName — DeferredPointer reference",
+			"match": "(\\$\\s*\\.\\s*this)\\s*\\.\\s*([a-zA-Z]\\w*)",
+			"captures": {
+				"1": { "name": "variable.language.this.hstd" },
+				"2": { "name": "variable.other.property.deferred.hstd" }
+			}
+		},
+		{
+			"comment": "[css]: bundle, [on]: bundle — property bundle keyword",
+			"match": "\\[\\s*(css|on|io)\\s*\\]",
+			"captures": {
+				"1": { "name": "support.module.bundle.hstd" }
+			}
+		}
+	],
+	"scopeName": "inline.hstd-props"
+}

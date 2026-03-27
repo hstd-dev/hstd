@@ -2,9 +2,7 @@
 	"fileTypes": [],
 	"injectionSelector": "L:meta.embedded.block.html meta.property-value.css",
 	"patterns": [
-		{
-			"include": "source.ts#template-substitution-element"
-		}
+		{ "include": "source.ts#template-substitution-element" }
 	],
-	"scopeName": "inline.lit-html.style.injection"
+	"scopeName": "inline.hstd-html.style.injection"
 }

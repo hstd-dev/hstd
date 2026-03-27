@@ -1,0 +1,8 @@
+{
+	"fileTypes": [],
+	"injectionSelector": "L:meta.embedded.block.html meta.tag",
+	"patterns": [
+		{ "include": "source.ts#template-substitution-element" }
+	],
+	"scopeName": "inline.hstd-html.string.injection"
+}
