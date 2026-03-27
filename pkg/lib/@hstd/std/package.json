@@ -1,7 +1,7 @@
 {
   "name": "@hstd/std",
-  "version": "0.0.7",
-  "description": "Fast. Interactive. Web Interface.",
+  "version": "0.1.0",
+  "description": "HyperStandard standard library — reactive primitives, DOM templating, and bindings",
   "type": "module",
   "main": "./src/mod.js",
   "repository": {
@@ -20,6 +20,17 @@
     ".": "./src/mod.js"
   },
   "homepage": "https://hstd.io",
+  "keywords": [
+    "hstd",
+    "hyperstandard",
+    "reactive",
+    "pointer",
+    "dom",
+    "template"
+  ],
+  "files": [
+    "src"
+  ],
   "devDependencies": {
     "esbuild": "^0.25.8"
   }
