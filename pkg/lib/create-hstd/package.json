@@ -1,8 +1,22 @@
 {
   "name": "create-hstd",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "description": "Scaffold a Vite + HyperStandard project",
   "type": "module",
-  "main": "./src/main.js",
+  "bin": {
+    "create-hstd": "./index.js"
+  },
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    "hstd",
+    "hyperstandard",
+    "vite",
+    "create",
+    "scaffold",
+    "template"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hstd-dev/hstd.git"
