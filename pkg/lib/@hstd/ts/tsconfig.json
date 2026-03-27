@@ -1,21 +1,15 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es2016",
-        "lib": [
-            "es2016"
-        ],
+        "target": "es2020",
+        "lib": ["es2020"],
         "sourceMap": true,
         "outDir": "lib",
         "rootDir": "src",
         "strict": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true
+        "esModuleInterop": true,
+        "declaration": true
     },
-    "exclude": [
-        "lib",
-        "e2e",
-        "node_modules",
-        "test-workspace"
-    ]
+    "include": ["src"],
+    "exclude": ["lib", "node_modules"]
 }

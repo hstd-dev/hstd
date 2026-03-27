@@ -4,13 +4,6 @@ const
 
 	targetCache = Memo(() => ({}), true),
 
-	/**
-	 * @param { string } eventName
-	 * @param { Function } callbackFn
-	 * @param { HTMLElement } ref
-	 * 
-	 * @returns { void }
-	 */
 	listen = Memo((eventName) => {
 
 		addEventListener(
@@ -19,7 +12,16 @@ const
 			{ passive: true }
 		);
 
-		return (callbackFn, ref) => (targetCache(ref)[eventName] ||= []).push(callbackFn);
+		return (callbackFn, ref) => {
+
+			if(typeof callbackFn !== "function") {
+				throw new Error(
+					`[hstd] on.${eventName} requires a function handler, but received ${typeof callbackFn}`
+				);
+			}
+
+			(targetCache(ref)[eventName] ||= []).push(callbackFn);
+		};
 	})
 ;
 

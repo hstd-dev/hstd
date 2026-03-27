@@ -2420,6 +2420,71 @@ describe('Error Handling', () => {
     assert.strictEqual(document.body.textContent, 'Infinity');
   });
 
+  it('should throw when object literal is in body position', () => {
+    assert.throws(
+      () => h`<div>${{ color: 'red' }}</div>`,
+      /Object literal in body position/
+    );
+  });
+
+  it('should throw when string is in attribute position', () => {
+    assert.throws(
+      () => h`<div ${"hello"}>text</div>`,
+      /string in attribute position/
+    );
+  });
+
+  it('should throw when number is in attribute position', () => {
+    assert.throws(
+      () => h`<div ${42}>text</div>`,
+      /number in attribute position/
+    );
+  });
+
+  it('should throw when null is in attribute position', () => {
+    assert.throws(
+      () => h`<div ${null}>text</div>`,
+      /null in attribute position/
+    );
+  });
+
+  it('should throw when pointer is in attribute position', () => {
+    const ptr = Pointer('hello');
+    assert.throws(
+      () => h`<div ${ptr}>text</div>`,
+      /in attribute position/
+    );
+  });
+
+  it('should throw when array is in attribute position', () => {
+    assert.throws(
+      () => h`<div ${[1, 2, 3]}>text</div>`,
+      /in attribute position/
+    );
+  });
+
+  it('should not throw for valid object in attribute position', () => {
+    assert.doesNotThrow(() => {
+      const frag = h`<div ${{ className: 'test' }}>text</div>`;
+      document.body.append(...frag);
+    });
+  });
+
+  it('should not throw for pointer in body position', () => {
+    const ptr = Pointer('hello');
+    assert.doesNotThrow(() => {
+      const frag = h`<div>${ptr}</div>`;
+      document.body.append(...frag);
+    });
+  });
+
+  it('should not throw for string in body position', () => {
+    assert.doesNotThrow(() => {
+      const frag = h`<div>${'hello'}</div>`;
+      document.body.append(...frag);
+    });
+  });
+
 });
 
 // ============================================================================
@@ -3832,6 +3897,36 @@ describe('on - Event Edge Cases', () => {
     assert.strictEqual(entered, true);
   });
 
+  it('should throw when on handler is a string', () => {
+    assert.throws(
+      () => {
+        const frag = h`<button ${{ [on.click]: "not a function" }}>X</button>`;
+        document.body.append(...frag);
+      },
+      /on\.click requires a function.*string/
+    );
+  });
+
+  it('should throw when on handler is a number', () => {
+    assert.throws(
+      () => {
+        const frag = h`<button ${{ [on.click]: 42 }}>X</button>`;
+        document.body.append(...frag);
+      },
+      /on\.click requires a function.*number/
+    );
+  });
+
+  it('should throw when on handler is null', () => {
+    assert.throws(
+      () => {
+        const frag = h`<button ${{ [on.click]: null }}>X</button>`;
+        document.body.append(...frag);
+      },
+      /on\.click requires a function/
+    );
+  });
+
 });
 
 // ============================================================================
@@ -3875,6 +3970,90 @@ describe('io - Edge Cases', () => {
     document.body.append(...frag);
     const input = document.body.querySelector('input');
     assert.strictEqual(input.value, '');
+  });
+
+  it('should throw on io binding to non-input element', () => {
+    const val = Pointer('');
+    assert.throws(
+      () => {
+        const frag = h`<div ${{ [io.value]: val }}>text</div>`;
+        document.body.append(...frag);
+      },
+      /io\.value requires <input>, <textarea>, <select>, or contenteditable element.*<div>/
+    );
+  });
+
+  it('should throw on io binding to span', () => {
+    const val = Pointer('');
+    assert.throws(
+      () => {
+        const frag = h`<span ${{ [io.value]: val }}>text</span>`;
+        document.body.append(...frag);
+      },
+      /io\.value.*<span>/
+    );
+  });
+
+  it('should not throw on contenteditable element', () => {
+    const val = Pointer('');
+    assert.doesNotThrow(() => {
+      const frag = h`<div ${{ [io.textContent]: val, contentEditable: 'true' }}>text</div>`;
+      document.body.append(...frag);
+    });
+  });
+
+  it('should not throw on input', () => {
+    const val = Pointer('');
+    assert.doesNotThrow(() => {
+      const frag = h`<input ${{ [io.value]: val, type: 'text' }}>`;
+      document.body.append(...frag);
+    });
+  });
+
+  it('should not throw on textarea', () => {
+    const val = Pointer('');
+    assert.doesNotThrow(() => {
+      const frag = h`<textarea ${{ [io.value]: val }}></textarea>`;
+      document.body.append(...frag);
+    });
+  });
+
+  it('should not throw on select', () => {
+    const val = Pointer('a');
+    assert.doesNotThrow(() => {
+      const frag = h`<select ${{ [io.value]: val }}><option value="a">A</option></select>`;
+      document.body.append(...frag);
+    });
+  });
+
+  it('should throw when io value is a string', () => {
+    assert.throws(
+      () => {
+        const frag = h`<input ${{ [io.value]: "not a pointer", type: 'text' }}>`;
+        document.body.append(...frag);
+      },
+      /io\.value requires a Pointer.*string/
+    );
+  });
+
+  it('should throw when io value is a number', () => {
+    assert.throws(
+      () => {
+        const frag = h`<input ${{ [io.value]: 42, type: 'text' }}>`;
+        document.body.append(...frag);
+      },
+      /io\.value requires a Pointer.*number/
+    );
+  });
+
+  it('should throw when io value is a function', () => {
+    assert.throws(
+      () => {
+        const frag = h`<input ${{ [io.value]: () => {}, type: 'text' }}>`;
+        document.body.append(...frag);
+      },
+      /io\.value requires a Pointer.*function/
+    );
   });
 
 });
@@ -3936,6 +4115,43 @@ describe('css - Reactive Updates', () => {
     assert.strictEqual(div.style.transform, 'rotate(0deg)');
     deg.$ = 90;
     assert.strictEqual(div.style.transform, 'rotate(90deg)');
+  });
+
+  it('should throw when css value is a function', () => {
+    assert.throws(
+      () => {
+        const frag = h`<div ${{ [css.color]: () => 'red' }}>X</div>`;
+        document.body.append(...frag);
+      },
+      /css\.color requires a string, number, or Pointer.*function/
+    );
+  });
+
+  it('should throw when css value is an object', () => {
+    assert.throws(
+      () => {
+        const frag = h`<div ${{ [css.color]: { r: 255 } }}>X</div>`;
+        document.body.append(...frag);
+      },
+      /css\.color requires a string, number, or Pointer.*object/
+    );
+  });
+
+  it('should throw when css value is a boolean', () => {
+    assert.throws(
+      () => {
+        const frag = h`<div ${{ [css.display]: true }}>X</div>`;
+        document.body.append(...frag);
+      },
+      /css\.display requires a string, number, or Pointer.*boolean/
+    );
+  });
+
+  it('should accept number for css value', () => {
+    const frag = h`<div ${{ [css.opacity]: Pointer(1) }}>X</div>`;
+    document.body.append(...frag);
+    const div = document.body.querySelector('div');
+    assert.strictEqual(div.style.opacity, '1');
   });
 
 });

@@ -18,6 +18,13 @@ const
 
 		(styleProp) => (styleValue, ref) => {
 
+			if(!isPointer(styleValue) && typeof styleValue !== "string" && typeof styleValue !== "number") {
+				throw new Error(
+					`[hstd] css.${styleProp} requires a string, number, or Pointer value, ` +
+					`but received ${typeof styleValue}`
+				);
+			}
+
 			const styleDec = ref.style,
 				tracker = getTracker(ref),
 				formed = formStyleProp(styleProp);

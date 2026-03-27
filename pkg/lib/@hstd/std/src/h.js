@@ -282,8 +282,22 @@ const hCache = Memo((s) => {
 			const body = v[index];
 
 			if(placeholder[index]) {
+				// Body position — plain attribute objects are not valid here
+				if(body != null && isConstructedFrom(body, Object)) {
+					throw new Error(
+						`[hstd] Object literal in body position (interpolation #${index + 1}). ` +
+						`Did you mean to use attribute syntax? e.g. <tag \${{ ... }}>`
+					);
+				}
 				resolveBody(ref, body);
 			} else {
+				// Attribute position — must receive a plain object
+				if(body == null || !isConstructedFrom(body, Object)) {
+					throw new Error(
+						`[hstd] ${body == null ? String(body) : typeof body} in attribute position (interpolation #${index + 1}). ` +
+						`Attributes require an object. e.g. <tag \${{ prop: value }}>`
+					);
+				}
 				resolveAttr(ref, body, id);
 			}
 

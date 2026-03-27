@@ -51,8 +51,9 @@ Visit live [demo](https://stackblitz.com/edit/web-platform-wikgugv3?devToolsHeig
     + [Derived Pointers](#derived-pointers)
 
 - **[Packages](#packages)**
-    + [**```hstd```**](./pkg/hstd)
-    + [**```@hstd/wc```**](./pkg/wc)
+    + [**```hstd```**](./pkg/lib/hstd)
+    + [**```@hstd/wc```**](./pkg/lib/@hstd/wc)
+    + [**```@hstd/ts```**](./pkg/lib/@hstd/ts)
 - **[License](#license)**
 
 ---
@@ -270,6 +271,24 @@ const Dashboard = () => {
 
 Pointers support chained derivations: `.into(fn)`, `.not()`, `.bool()`, `.isit(ifTrue, ifFalse)`, `.timeout(ms)`, `.until(value)`, `.sum(n)`, `.sub(n)`, `.mul(n)`, `.div(n)`, `.mod(n)`, `.is(v)`, `.seq(v)`, `.or(v)`, `.and(v)`.
 
+## Runtime Validation
+
+hstd validates bindings at runtime and throws descriptive errors for common mistakes:
+
+```javascript
+// Position mismatch
+html`<div>${{ color: "red" }}</div>`      // Error: Object literal in body position
+html`<div ${"hello"}>text</div>`          // Error: string in attribute position
+
+// Type mismatch
+html`<div ${{ [on.click]: "str" }}>...`   // Error: on.click requires a function
+html`<div ${{ [css.color]: () => {} }}>…` // Error: css.color requires a string, number, or Pointer
+html`<input ${{ [io.value]: "str" }}>…`   // Error: io.value requires a Pointer
+
+// Element mismatch
+html`<div ${{ [io.value]: ptr }}>…`       // Error: io requires input/textarea/select/contenteditable
+```
+
 ## Packages
 
 ### [```hstd```](./pkg/lib/hstd)
@@ -277,7 +296,23 @@ HyperStandard's fundamental core library.
 ### [```@hstd/wc```](./pkg/lib/@hstd/wc)
 HyperStandard-to-WebComponents adapter.
 ### [```@hstd/ts```](./pkg/lib/@hstd/ts)
-TypeScript language service plugin that adds IntelliSense for HyperStandard templates.
+TypeScript language service plugin for HyperStandard. Provides editor-agnostic IntelliSense (works with any editor supporting TypeScript, including vim, neovim, VS Code):
+
+- **HTML element completion** inside `h`/`html` tagged templates
+- **CSS property completion** after `css.` and inside `[css]: { }`
+- **DOM event completion** after `on.` and inside `[on]: { }`
+- **IO property completion** after `io.`
+- **`$.this` property completion** with sibling property suggestions
+- **Static diagnostics** for type mismatches (`on`/`css`/`io` value types), position mismatches (body vs attribute), and invalid `io` element targets
+
+```jsonc
+// tsconfig.json
+{
+    "compilerOptions": {
+        "plugins": [{ "name": "@hstd/ts" }]
+    }
+}
+```
 
 ## License
 
