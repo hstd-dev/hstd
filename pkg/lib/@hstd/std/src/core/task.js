@@ -5,26 +5,22 @@ export const Task = () => {
 	let unresolved = true;
 
 	const
-		res = [],
-		rej = [],
+		resolvers = [],
+		rejectors = [],
 
-		resrejFn = (isResolve, value) => {
+		dispatch = (targets, value) => {
 			if(unresolved) {
 				unresolved = false;
 				queueMicrotask(() => unresolved = true);
-				(isResolve ? res : rej).forEach(x => x(value));
-				res.length = rej.length = 0;
+				targets.forEach(x => x(value));
+				resolvers.length = rejectors.length = 0;
 			}
-		},
-
-		resolve = resrejFn.bind(null, true),
-		reject = resrejFn.bind(null, false)
+		}
 	;
 
 	return (result = NOT_FOUND) => (
-
-		result === NOT_FOUND		? new Promise((rs, rj) => { res.push(rs); rej.push(rj); })
-		: result instanceof Error	? reject(result)
-		:							resolve(result)
+		result === NOT_FOUND		? new Promise((rs, rj) => { resolvers.push(rs); rejectors.push(rj); })
+		: result instanceof Error	? dispatch(rejectors, result)
+		:							dispatch(resolvers, result)
 	)
 };

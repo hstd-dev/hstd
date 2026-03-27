@@ -4,8 +4,8 @@ export const
 
 	isFrozenArray = (arr) => Object.isFrozen(arr) && isConstructedFrom(arr, Array),
 
-	isAsyncGenerator = (gen) => typeof gen[Symbol.asyncIterator] == "function",
+	isAsyncGenerator = (gen) => gen != null && typeof gen[Symbol.asyncIterator] == "function",
 
-	isGenerator = (gen) => typeof gen[Symbol.iterator] == "function"
+	isGenerator = (gen) => gen != null && typeof gen[Symbol.iterator] == "function"
 
 ;

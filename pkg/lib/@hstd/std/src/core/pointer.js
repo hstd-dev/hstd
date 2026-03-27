@@ -6,387 +6,210 @@ const
 	{ Promise, Function } = globalThis,
 
 	PTR_IDENTIFIER = Symbol.for("PTR_IDENTIFIER"),
+	ARRAY_PTR_IDENTIFIER = Symbol.for("ARRAY_PTR_IDENTIFIER"),
+	DEFERRED_PTR_IDENTIFIER = Symbol.for("DEFERRED_PTR_IDENTIFIER"),
 
 	publishedPtr = {},
-	
-	createSignature = () => String.fromCharCode(...resolverSignatureGenCB()),
-	
+	bufferOf = new WeakMap(),
 	isPointer = (ptr) => ptr?.[PTR_IDENTIFIER],
 
-	resolverSignatureGenCB = function*(length = 52) {
-		let c = 0;
-		while(c++ < length) {
-			let buf = Math.floor(Math.random() * 31)
-			yield 0x7f + buf + (buf > 0x8d) + (buf > 0x9c)
-		};
-	},
+	createSignature = () => String.fromCharCode(...Array.from({ length: 52 }, () => {
+		let buf = Math.floor(Math.random() * 31);
+		return 0x7f + buf + (buf > 0x8d) + (buf > 0x9c);
+	})),
 
 	logicOps = {
-		is:						Object.is,
-		leq:					(a, b) => a == b,
-		seq:					(a, b) => a === b,
-		or:						(a, b) => a || b,
-		and:					(a, b) => a && b,
-		xor:					(a, b) => a ^ b,
-
-		sum:					(a, b) => a + b,
-		sub:					(a, b) => a - b,
-		mul:					(a, b) => a * b,
-		div:					(a, b) => a / b,
-		mod:					(a, b) => a % b,
-
-		// rsh:					(a, b) => a >> b,
-		// ursh:				(a, b) => a >>> b,
-		// lsh:					(a, b) => a << b,
+		is: Object.is, leq: (a, b) => a == b, seq: (a, b) => a === b,
+		or: (a, b) => a || b, and: (a, b) => a && b, xor: (a, b) => a ^ b,
+		sum: (a, b) => a + b, sub: (a, b) => a - b, mul: (a, b) => a * b,
+		div: (a, b) => a / b, mod: (a, b) => a % b,
 	},
 
-	opTemp = Object.assign(
+	execWatchers = (buffer, value, force) => {
+		(force || value !== buffer[0]) && (
+			buffer[0] = value,
+			buffer[1].forEach(fn => buffer[2].get(fn)?.[1] ? fn(value) : 0)
+		);
+	},
 
-		{
+	ops = Object.assign(Object.create(null), {
 
-			[Symbol.toPrimitive]([value], hint) {
-
-				return (
-					typeof hint === "string"
-						? hint === "string" && isConstructedFrom(value, Function)
-							? this.publish()
-							: value.toString()
-						: hint === PTR_IDENTIFIER
-				);
-
-			},
-
-			/**
-			 * watch(watcherFn) - add watcher to pointer, which observes the mutation of attatched value.
-			 */
-
-			watch(buffer, watcherFn) {
-
-				if(watcherFn) {
-					buffer[2].set(watcherFn, [
-						buffer[1].push(watcherFn) - 1,
-						!0
-					])
-				};
-
-				return this;
-
-			},
-
-			abort(buffer, watcherFn) {
-
-				if(watcherFn) {
-					const info = buffer[2].get(watcherFn);
-					info[1] = !1;
-					delete buffer[1][info?.[0]];
-				};
-
-				return this;
-
-			},
-
-			into([value], transformerFn = $ => $) {
-
-				const
-					binder = value => {
-						const tmp = transformerFn(value);
-						return isConstructedFrom(tmp, Promise) ? (tmp.then($ => newPtr.$ = $), undefined)
-							// : isPtr(tmp) ? newPtr
-							: newPtr.$ = tmp;
-					},
-					newPtr = Pointer()
-				;
-
-				binder(value);
-
-				this.watch(binder);
-
-				return newPtr;
-			},
-
-			until(_, value) {
-
-				return new Promise(r => {
-
-					const watcherFn = $ => (isConstructedFrom(value, Function) ? value($) : $ === value)
-						? (this.abort(watcherFn), r(this))
-						: 0
-					;
-
-					this.watch(watcherFn);
-
-				})
-			},
-
-			switch() {
-
-				this.$ = !this.$;
-
-				return this;
-
-			},
-
-			not() {
-
-				return this.into($ => !$)
-
-			},
-
-			bool() {
-
-				return this.into($ => !!$)
-
-			},
-
-			isit(ifTrue, ifFalse) {
-				
-				return this.into($ => $ ? ifTrue : ifFalse);
-
-			},
-
-			tick() {
-
-				let bool = false;
-
-				return this.into(() => bool = !bool)
-
-			},
-
-			toString(_, base) {
-
-				const
-					isPtrCache = isPointer(base),
-					ptr = this.into($ => $.toString(isPtrCache ? base.$ : base))
-				;
-
-				isPtrCache ? base.watch($ => ptr.$ = this.$.toString($)) : 0;
-
-				return ptr;
-
-			},
-
-			publish(buffer) {
-
-				const symbol = Symbol(buffer[3]);
-
-				publishedPtr[symbol] = this;
-
-				return symbol;
-
-			},
-
-			timeout(_, delay) {
-
-				const ptr = Pointer(this.$);
-				let timeoutIdBuf;
-
-				this.watch($ => {
-					clearTimeout(timeoutIdBuf);
-					timeoutIdBuf = setTimeout(() => ptr.$ = $, isPointer(delay) ? delay.$ : delay)
-				})
-
-				return ptr;
-
-			},
-
-			from(_, callback) {
-
-				let shouldRefresh = true;
-
-				callback(
-					(newValue) => shouldRefresh ? this.$ = newValue : newValue,
-					(shouldRefreshBoolean) => shouldRefresh = shouldRefreshBoolean
-				);
-
-				return this;
-
-			}
+		[Symbol.toPrimitive](hint) {
+			const value = bufferOf.get(this)[0];
+			return typeof hint === "string"
+				? hint === "string" && isConstructedFrom(value, Function) ? this.publish() : value.toString()
+				: hint === PTR_IDENTIFIER;
 		},
 
-		...Object.keys(logicOps).map(op => ({
+		watch(watcherFn) {
+			const buffer = bufferOf.get(this);
+			if(watcherFn) buffer[2].set(watcherFn, [buffer[1].push(watcherFn) - 1, !0]);
+			return this;
+		},
 
-			[op](_, value) {
-
-				const
-					isPtrCache = isPointer(value),
-					boolOp = logicOps[op],
-					ptr = this.into($ => boolOp($, isPtrCache ? value.$ : value))
-				;
-
-				isPtrCache ? value.watch($ => ptr.$ = boolOp(this.$, $)) : 0;
-
-				return ptr;
-
+		abort(watcherFn) {
+			const buffer = bufferOf.get(this);
+			if(watcherFn) {
+				const info = buffer[2].get(watcherFn);
+				info[1] = !1;
+				delete buffer[1][info?.[0]];
 			}
+			return this;
+		},
 
-		}))
+		into(transformerFn = $ => $) {
+			const buffer = bufferOf.get(this),
+				binder = value => {
+					const result = transformerFn(value);
+					return isConstructedFrom(result, Promise)
+						? (result.then($ => derived.$ = $), undefined)
+						: derived.$ = result;
+				},
+				derived = Pointer(undefined, [], this)
+			;
 
-	),
+			binder(buffer[0]);
+			this.watch(binder);
+			return derived;
+		},
 
-	ptrFromBuffer = new WeakMap(),
+		until(value) {
+			const buffer = bufferOf.get(this), self = this;
+			return new Promise(resolve => {
+				const check = ($) => isConstructedFrom(value, Function) ? value($) : $ === value;
+				if(check(buffer[0])) return resolve(self);
+				const watcherFn = $ => { if(check($)) { self.abort(watcherFn); resolve(self); } };
+				self.watch(watcherFn);
+			});
+		},
 
-	recieverResolver = (reciever, prop) => (...args) => {
-									
-		const
-			argMap = args.map((arg, i) => (
+		switch() { this.$ = !this.$; return this; },
+		not() { return this.into($ => !$); },
+		bool() { return this.into($ => !!$); },
+		isit(ifTrue, ifFalse) { return this.into($ => $ ? ifTrue : ifFalse); },
+		tick() { let flag = false; return this.into(() => flag = !flag); },
 
-				isPointer(arg)
+		toString(base) {
+			const baseIsPtr = isPointer(base),
+				ptr = this.into($ => $.toString(baseIsPtr ? base.$ : base));
+			baseIsPtr ? base.watch($ => ptr.$ = this.$.toString($)) : 0;
+			return ptr;
+		},
 
-					? arg.watch($ => (
+		publish() {
+			const symbol = Symbol(bufferOf.get(this)[3]);
+			publishedPtr[symbol] = this;
+			return symbol;
+		},
 
-						argMap[i] = $,
-						ptrBuf.$ = reciever.$[prop](...argMap)
+		timeout(delay) {
+			const ptr = Pointer(this.$);
+			let timeoutId;
+			this.watch($ => {
+				clearTimeout(timeoutId);
+				timeoutId = setTimeout(() => ptr.$ = $, isPointer(delay) ? delay.$ : delay);
+			});
+			return ptr;
+		},
 
-					)).$
+		from(callback) {
+			let shouldRefresh = true;
+			callback(
+				(newValue) => shouldRefresh ? this.$ = newValue : newValue,
+				(flag) => shouldRefresh = flag
+			);
+			return this;
+		},
 
-					: arg
-			)),
+	}, ...Object.keys(logicOps).map(op => ({
 
-			ptrBuf = reciever.into($ => $[prop](...argMap))
+		[op](value) {
+			const valueIsPtr = isPointer(value),
+				opFn = logicOps[op],
+				ptr = this.into($ => opFn($, valueIsPtr ? value.$ : value));
+			valueIsPtr ? value.watch($ => ptr.$ = opFn(this.$, $)) : 0;
+			return ptr;
+		}
+
+	}))),
+
+	opCache = Memo(prop => Memo(ptr => ops[prop].bind(ptr), true)),
+
+	resolveMethod = (receiver, prop) => (...args) => {
+
+		const argMap = args.map((arg, i) =>
+			isPointer(arg)
+				? arg.watch($ => (argMap[i] = $, ptrBuf.$ = receiver.$[prop](...argMap))).$
+				: arg
+			),
+			ptrBuf = receiver.into($ => $[prop](...argMap))
 		;
 
-		return ptrBuf
-
+		return ptrBuf;
 	},
 
-	execWatcherTemp = (buffer) => function(value, force, ptr) {
-		const watcherInfo = buffer[2];
-		(force || (value !== buffer[0]))
-			? (buffer[0] = value, buffer[1].forEach(fn => watcherInfo.get(fn)?.[1] ? fn(value) : 0))
-			: 0
-		;
-		return ptr;
-	},
-
-	opBinder = Memo((prop) => Memo((buffer) => opTemp[prop].bind(ptrFromBuffer.get(buffer), buffer), true)),
-	
-	hasOp = hasOwnProperty.bind(opTemp),
-
-	// OP_ON = 0x0000,
-
-	// pointerOp = {
-	// 	on() {
-			
-	// 	}
-	// },
-
-	// newPointerHandler = {
-	// 	get(buffer, prop) {
-	// 		if(prop === "$") return buffer();
-
-	// 	},
-	// 	set(buffer, prop, newValue) {
-	// 		if(prop === "$") buffer(newValue);
-	// 		return true;
-	// 	}
-	// },
-
-	// UNDEFINED = Symbol(),
-
-	// NewPointer = (value, [setter, options] = []) => {
-	// 	const
-	// 		buffer = [],
-	// 		watchers = [],
-	// 		watcherMap = new WeakMap,
-	// 		execWatcher = (newValue) => watchers.forEach(watcher => watcher?.(newValue)),
-	// 		valueRef = (newValue = UNDEFINED) => newValue == UNDEFINED ? value : (Object.is(newValue, value) ? 0 : execWatcher(value = newValue), value),
-	// 		pointer = new Proxy(valueRef, newPointerHandler)
-	// 	;
-
-	// 	buffer.push((newValue = value) => value = newValue, pointer);
-	// },
-
-	Pointer = (value, [setter, options] = []) => {
+	Pointer = (value, [setter, options] = [], parent = null) => {
 
 		const
-			watchers = [],
-			watcherInfo = new WeakMap(),
-			formattedOptions = Object.assign({ name: "$", writable: true }, options),
-			buffer = [
-				value,
-				watchers,
-				watcherInfo,
-				signature + formattedOptions.name
-			],
-			execWatcher = execWatcherTemp(buffer),
+			{ name = "$", writable = true } = options || {},
+			buffer = [value, [], new WeakMap(), signature + name, parent],
 
 			ptr = new Proxy(
 
 				Object.defineProperties(Object(function(...args) {
-	
-					const [tmp] = buffer;
-	
-					return isConstructedFrom(tmp, Function) ? tmp.apply(null, args) : tmp;
-	
-				}), { name: { value: formattedOptions.name } }),
-	
+					return isConstructedFrom(buffer[0], Function) ? buffer[0].apply(null, args) : buffer[0];
+				}), { name: { value: name } }),
+
 				{
-	
-					get(_, prop, reciever) {
-	
-						const
-							[tmp] = buffer
-						;
-				
+					get(_, prop, receiver) {
+						const value = buffer[0];
 						return (
-								prop === "$"					? tmp
-								: prop === "refresh"			? execWatcher.bind(null, tmp, !0, reciever)
-								: prop === "constructor"		? !0
-								: prop === Symbol.asyncIterator	? false
-				
-								: prop === PTR_IDENTIFIER		? !0
-								: prop === Symbol.hasInstance	? () => !1
-	
-								: hasOp(prop)					? opBinder(prop)(buffer)
-				
-								: (
-									isConstructedFrom(tmp[prop], Function)
-			
-										? recieverResolver(reciever, prop)
-			
-										: reciever.into($ => $[prop])
-								)
+							prop === "$"						? value
+							: prop === "refresh"				? () => (execWatchers(buffer, value, !0), receiver)
+							: prop === "constructor"			? !0
+							: prop === Symbol.asyncIterator		? false
+
+							: prop === PTR_IDENTIFIER			? !0
+							: prop === ARRAY_PTR_IDENTIFIER
+								|| prop === DEFERRED_PTR_IDENTIFIER	? !1
+							: prop === Symbol.hasInstance		? () => !1
+
+							: prop === "up"						? buffer[4]
+							: prop === "then"					? undefined
+
+							: prop in ops						? opCache(prop)(receiver)
+
+							: isConstructedFrom(value[prop], Function)
+								? resolveMethod(receiver, prop)
+								: receiver.into($ => $[prop])
 						);
 					},
-	
+
 					set(_, prop, newValue) {
-	
-						if(formattedOptions.writable) {
-				
+						if(writable) {
 							if(prop == "$") {
-				
-								const tmp = setter ? setter(newValue) : newValue;
-				
-								isConstructedFrom(tmp, Promise) ? tmp.then(execWatcher) : execWatcher(tmp)
-				
+								const value = setter ? setter(newValue) : newValue;
+								isConstructedFrom(value, Promise)
+									? value.then(resolved => execWatchers(buffer, resolved))
+									: execWatchers(buffer, value);
 							} else {
-								
-								buffer[0][prop] = (
-									isPointer(newValue)
-										? newValue.watch($ => buffer[0][prop] = $).$
-										: newValue
-								)
+								buffer[0][prop] = isPointer(newValue)
+									? newValue.watch($ => buffer[0][prop] = $).$
+									: newValue;
 							}
 						}
-				
-				
 						return !0;
-				
 					}
-	
 				}
-	
 			)
 		;
 
-		ptrFromBuffer.set(buffer, ptr);
-
+		bufferOf.set(ptr, buffer);
 		return ptr;
 	}
 ;
 
 let signature;
-
 while((signature = createSignature()) in globalThis);
 
 Object.defineProperty(globalThis, signature, {
@@ -394,6 +217,5 @@ Object.defineProperty(globalThis, signature, {
 	configurable: !1,
 	enumerable: !1
 });
-
 
 export { Pointer, createSignature, isPointer }

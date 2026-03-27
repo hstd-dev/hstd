@@ -11,39 +11,35 @@ let
 const
 
 	formerRegex = /[A-Z]{1}/g,
-
 	lowercaseMatcher = Memo((match) => "-" + match.toLowerCase()),
-
 	formStyleProp = Memo((styleProp) => styleProp.replaceAll(formerRegex, lowercaseMatcher)),
 
 	css = Prop(
 
 		(styleProp) => (styleValue, ref) => {
 
-			const
-				styleDec = ref.style,
+			const styleDec = ref.style,
 				tracker = getTracker(ref),
-				formedStylePropBuf = formStyleProp(styleProp)
-			;
+				formed = formStyleProp(styleProp);
 
 			if(isPointer(styleValue)) {
 
 				styleDec.setProperty(
-					formedStylePropBuf,
-					styleValue.watch($ => styleDec.setProperty(formedStylePropBuf, $)).$
+					formed,
+					styleValue.watch($ => styleDec.setProperty(formed, $)).$
 				)
 
 			} else {
 
 				if(!isMicrotaskQueued) {
-
 					isMicrotaskQueued = true;
-
 					queueMicrotask(() => {
 						document.head.append(Object.assign(
 							document.createElement("style"),
 							{
-								textContent: Object.entries(cssRuleAssignmentTask).map(([tracker, assignmentTask]) => `[${tracker}]{${assignmentTask}}`).join("")
+								textContent: Object.entries(cssRuleAssignmentTask)
+									.map(([tracker, task]) => `[${tracker}]{${task}}`)
+									.join("")
 							}
 						));
 						isMicrotaskQueued = false;
@@ -51,12 +47,11 @@ const
 					});
 				}
 
-				cssRuleAssignmentTask[tracker] = (cssRuleAssignmentTask[tracker] || "") + `${formedStylePropBuf}:${styleValue};`
+				cssRuleAssignmentTask[tracker] = (cssRuleAssignmentTask[tracker] || "") + `${formed}:${styleValue};`;
 			}
 		},
 
 		Memo(prop => "css-" + formStyleProp(prop))
-
 	)
 ;
 

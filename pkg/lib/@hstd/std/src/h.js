@@ -1,10 +1,10 @@
 import { isPointer } from "./core/pointer.js";
+import { isArrayPointer } from "./core/arraypointer.js";
 import { Memo } from "./core/memo.js";
 import { isAsyncGenerator, isConstructedFrom, isFrozenArray } from "./core/checker.js";
 import { getPrototype } from "./core/prototype.js";
 import { random } from "./core/random.js";
-
-import { registerFragment } from "@hstd/core"
+import { isDeferredPointer } from "./core/deferred.js";
 
 const { replaceWith } = getPrototype(Element);
 
@@ -30,38 +30,59 @@ const FRAGMENT_TEMP = {
 const REF_PROXY_HANDLER = {
 
 	get(target, prop) {
-
 		if(prop in Element.prototype) return;
-
 		const targetValue = target[prop];
-
-		return isConstructedFrom(targetValue, Function)
-			? targetValue.bind(target)
-			: targetValue
-		;
-
+		return isConstructedFrom(targetValue, Function) ? targetValue.bind(target) : targetValue;
 	},
 
 	set(target, prop, newValue) {
-
 		if(!(prop in Element.prototype)) resolveAttr(null, target, { [prop]: newValue });
-
 		return true;
-
 	}
+};
+
+const createHiddenDiv = () => Object.assign(document.createElement("div"), { hidden: true });
+
+// Clear all DOM nodes between two marker elements
+const clearBetween = (markerBegin, markerEnd) => {
+	let current = markerBegin.nextSibling;
+	while(current && current !== markerEnd) {
+		const next = current.nextSibling;
+		current.remove();
+		current = next;
+	}
+};
+
+// Resolve DeferredPointer by looking up the referenced property in the context object
+const resolveDeferredValue = (value, context) => {
+	if(isDeferredPointer(value)) {
+		return resolveDeferredValue(context[value.prop], context);
+	}
+	return value;
+};
+
+// Resolve all DeferredPointers within an object using itself as context
+const resolveDeferredInObject = (obj) => {
+	if(!obj || obj.constructor !== Object) return obj;
+	const resolved = {};
+	for(const key of Reflect.ownKeys(obj)) {
+		resolved[key] = resolveDeferredValue(obj[key], obj);
+	}
+	return resolved;
 };
 
 const resolveAttr = (ref, attr, id) => Reflect.ownKeys(attr).forEach((attrProp) => {
 
-	const attrValue = attr[attrProp];
+	let attrValue = resolveDeferredValue(attr[attrProp], attr);
 	const attrPropType = typeof attrProp;
 
 	if(attrPropType == "symbol") {
 
 		const attrPtr = globalThis[attrProp.description.slice(0, 52)]?.(attrProp);
 		if(!isPointer(attrPtr)) return;
-		
-		const buf = attrPtr.$(attrValue, ref);
+
+		const resolvedValue = resolveDeferredInObject(attrValue);
+		const buf = attrPtr.$(resolvedValue, ref);
 		if(buf?.constructor !== Object) return;
 
 		resolveAttr(ref, buf, id);
@@ -73,90 +94,148 @@ const resolveAttr = (ref, attr, id) => Reflect.ownKeys(attr).forEach((attrProp) 
 			const refProxy = new Proxy(ref, REF_PROXY_HANDLER);
 
 			if(isPointer(attrValue)) {
-
-				if(attrValue.$ === undefined) {
-
-					attrValue.$ = refProxy;
-
-				}
-
+				if(attrValue.$ === undefined) attrValue.$ = refProxy;
 			} else if(!(attrValue in id)) {
-
 				id[attrValue] = refProxy;
 			}
 
-
 		} else {
-
 			ref[attrProp] = attrValue;
-
 		}
 	}
 });
 
-const createHiddenDiv = () => Object.assign(document.createElement("div"), { hidden: true });
+// Process an async generator, inserting yielded content between markers
+const processAsyncGenerator = (body, markerBegin, markerEnd, markerParentRef) => {
+	let aborted = false;
+	const abort = () => { aborted = true; };
+
+	(async () => {
+		let isInitial = true, doReplace = true;
+
+		for await(const yielded of body) {
+			if(aborted) break;
+
+			if(isInitial && yielded === "append") {
+				doReplace = isInitial = false;
+				continue;
+			}
+			isInitial = false;
+
+			if(doReplace) clearBetween(markerBegin, markerEnd);
+
+			const placeholder = createHiddenDiv();
+			(markerParentRef.node ||= markerEnd.parentNode).insertBefore(placeholder, markerEnd);
+			resolveBody(placeholder, yielded);
+		}
+
+		if(!aborted) { markerBegin.remove(); markerEnd.remove(); }
+	})();
+
+	return abort;
+};
 
 const resolveBody = (ref, body) => {
 
-	const markerReplacement = createHiddenDiv();
-
 	if(body instanceof Promise) {
 
-		body.then(resolveBody.bind(null, markerReplacement));
-		ref.replaceWith(markerReplacement);
+		const marker = createHiddenDiv();
+		body.then(resolveBody.bind(null, marker));
+		ref.replaceWith(marker);
 
 	} else if(isAsyncGenerator(body)) {
 
-		const markerBegin = createHiddenDiv();
-		const markerEnd = createHiddenDiv();
-
-		let
-			isInitial = true,
-			doReplace = true,
-			
-			markerParent
-		;
-
-		(async () => {
-
-			for await(const yielded of body) {
-
-				if(isInitial && yielded === "append") {
-					doReplace = isInitial = false;
-					continue;
-				};
-
-				isInitial = false;
-
-				if(doReplace) {
-
-					let currentMarker = markerBegin.nextSibling;
-
-					while (currentMarker && currentMarker !== markerEnd) {
-						const next = currentMarker.nextSibling;
-						currentMarker.remove();
-						currentMarker = next;
-					}
-
-				};
-
-				(markerParent ||= markerEnd.parentNode).insertBefore(markerReplacement, markerEnd);
-
-				resolveBody(markerReplacement, yielded);
-			}
-
-			markerBegin.remove();
-			markerEnd.remove();
-
-		})();
-
+		const markerBegin = createHiddenDiv(), markerEnd = createHiddenDiv();
 		ref.replaceWith(markerBegin, markerEnd);
-		
+		processAsyncGenerator(body, markerBegin, markerEnd, {});
+
+	} else if(isArrayPointer(body)) {
+
+		const markerBegin = createHiddenDiv(), markerEnd = createHiddenDiv();
+		const elementNodes = new Map();
+		let markerParent;
+
+		const renderElement = (element) =>
+			isConstructedFrom(element, NodeList) || element?.[Symbol.iterator]
+				? [...element]
+				: [element instanceof Node ? element : new Text(String(element))];
+
+		const insertAt = (nodes, index) => {
+			const entries = [...elementNodes.entries()].sort((a, b) => a[0] - b[0]);
+			let insertBefore = markerEnd;
+			for(const [idx, n] of entries) {
+				if(idx > index) { insertBefore = n[0]; break; }
+			}
+			nodes.forEach(node => (markerParent ||= markerEnd.parentNode).insertBefore(node, insertBefore));
+			elementNodes.set(index, nodes);
+		};
+
+		const remapKeys = (offset) => {
+			const newMap = new Map();
+			elementNodes.forEach((v, k) => newMap.set(k + offset, v));
+			elementNodes.clear();
+			newMap.forEach((v, k) => elementNodes.set(k, v));
+		};
+
+		const replaceAll = () => {
+			elementNodes.forEach(nodes => nodes.forEach(n => n.remove()));
+			elementNodes.clear();
+			body.$.forEach((el, i) => insertAt(renderElement(el), i));
+		};
+
+		body.$.forEach((element, index) => elementNodes.set(index, renderElement(element)));
+		ref.replaceWith(markerBegin, ...([...elementNodes.values()].flat()), markerEnd);
+
+		body.on((element, index, type) => {
+			markerParent ||= markerEnd.parentNode;
+
+			if(type === "push") {
+				insertAt(renderElement(element), index);
+			} else if(type === "pop" || type === "shift") {
+				const nodes = elementNodes.get(index);
+				if(nodes) { nodes.forEach(n => n.remove()); elementNodes.delete(index); }
+				if(type === "shift") remapKeys(-1);
+			} else if(type === "unshift") {
+				remapKeys(1);
+				insertAt(renderElement(element), 0);
+			} else if(type === "set" || type === "swap") {
+				const oldNodes = elementNodes.get(index);
+				if(oldNodes) {
+					const newNodes = renderElement(element);
+					oldNodes[0].before(...newNodes);
+					oldNodes.forEach(n => n.remove());
+					elementNodes.set(index, newNodes);
+				}
+			} else {
+				replaceAll();
+			}
+		});
+
 	} else if(isPointer(body)) {
 
-		const text = new Text(body.watch($ => text.textContent = $).$);
+		const markerBegin = createHiddenDiv(), markerEnd = createHiddenDiv();
+		let markerParent, currentAbort = null;
 
-		ref.replaceWith(text);
+		const renderPointerValue = (value) => {
+			clearBetween(markerBegin, markerEnd);
+			if(currentAbort) { currentAbort(); currentAbort = null; }
+
+			markerParent ||= markerEnd.parentNode;
+
+			if(isAsyncGenerator(value)) {
+				currentAbort = processAsyncGenerator(value, markerBegin, markerEnd, { node: markerParent });
+			} else if(value instanceof Node) {
+				markerParent.insertBefore(value, markerEnd);
+			} else if(value instanceof NodeList || (value?.[Symbol.iterator] && value[0] instanceof Node)) {
+				[...value].forEach(node => markerParent.insertBefore(node, markerEnd));
+			} else {
+				markerParent.insertBefore(new Text(String(value ?? '')), markerEnd);
+			}
+		};
+
+		ref.replaceWith(markerBegin, markerEnd);
+		renderPointerValue(body.$);
+		body.watch(renderPointerValue);
 
 	} else {
 
@@ -197,30 +276,29 @@ const hCache = Memo((s) => {
 
 		const newNode = cloneNode();
 		const id = {};
-		
+
 		newNode.querySelectorAll(`[${tokenBuf}]`).forEach((ref, index) => {
 
 			const body = v[index];
-	
-			(placeholder[index] ? resolveBody : resolveAttr)(ref, body, id);
-	
+
+			if(placeholder[index]) {
+				resolveBody(ref, body);
+			} else {
+				resolveAttr(ref, body, id);
+			}
+
 			ref.removeAttribute(tokenBuf);
 		});
 
 		return Object.assign(
-
 			newNode.childNodes,
 			FRAGMENT_TEMP,
 			{
 				on(...onloadCallbacks) {
-
 					onloadCallbacks.forEach(fn => fn(id));
-
 					return this;
-		
 				}
 			}
-	
 		);
 	};
 
@@ -230,9 +308,7 @@ const appenderFlag = Symbol();
 
 const h = Object.assign(
 	(s, ...v) => {
-
 		if(isFrozenArray(s)) return hCache(s)(v);
-
 		const ref = createHiddenDiv();
 		resolveBody(ref, s);
 		return ref;
@@ -243,9 +319,8 @@ const h = Object.assign(
 		}
 	}
 );
-	
+
 Object.defineProperty(HTMLElement.prototype, appenderFlag, {
-	// value: undefined,
 	set(fragment) {
 		this.textContent = "";
 		this.append(...h`${fragment}`);
@@ -256,5 +331,3 @@ Object.defineProperty(HTMLElement.prototype, appenderFlag, {
 })
 
 export { h }
-
-// @hstd/dom

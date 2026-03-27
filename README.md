@@ -45,6 +45,10 @@ Visit live [demo](https://stackblitz.com/edit/web-platform-wikgugv3?devToolsHeig
     + [Interactive Binding](#interactive-binding)
     + [Post-processing](#post-processing)
     + [Works with Async Iterator](#works-with-async-iterator)
+    + [Reactive Arrays](#reactive-arrays)
+    + [Template Literal Pointer](#template-literal-pointer)
+    + [Property Bundle Reference](#property-bundle-reference)
+    + [Derived Pointers](#derived-pointers)
 
 - **[Packages](#packages)**
     + [**```hstd```**](./pkg/hstd)
@@ -159,7 +163,7 @@ const Iterated = async function*() {
     yield html`
         <label>Loading...</label>
     `;
-    
+
     const { name, age, link } = await fetch(`/api/user/${user.$}`).then(res => res.json());
 
     yield html`
@@ -175,6 +179,96 @@ const Iterated = async function*() {
 
 document.body[html] = Iterated();
 ```
+
+### Reactive Arrays
+```javascript
+import { $, h as html, on } from "hstd"
+
+const TodoApp = () => {
+
+    const todos = $(["Buy milk", "Walk dog"]);
+    const input = $('');
+
+    return html`
+        <ul>${todos.into(item => html`<li>${item}</li>`)}</ul>
+        <input ${{ [io.value]: input }}>
+        <button ${{ [on.click]: () => { todos.push(input.$); input.$ = ''; } }}>
+            Add
+        </button>
+    `
+}
+```
+
+`$([...])` creates an ArrayPointer that tracks mutations (`push`, `pop`, `shift`, `unshift`, `splice`, `sort`, `reverse`, `swap`, `set`) and updates the DOM automatically. Derived queries like `find`, `includes`, `some`, `every`, `reduce` return reactive Pointers.
+
+### Template Literal Pointer
+```javascript
+import { $, h as html, css } from "hstd"
+
+const Animated = () => {
+
+    const rotation = $(0);
+    const scale = $(1);
+    const transform = $`rotate(${rotation}deg) scale(${scale})`;
+
+    return html`
+        <div ${{ [css.transform]: transform }}>Hello</div>
+    `
+}
+```
+
+`` $`...` `` creates a Pointer that interpolates reactive values into a string. When any interpolated Pointer changes, the string updates automatically.
+
+### Property Bundle Reference
+```javascript
+import { $, h as html, css } from "hstd"
+
+const Themed = () => {
+
+    const primary = $("royalblue");
+
+    return html`
+        <div ${{
+            [css]: {
+                backgroundColor: primary,
+                color: $.this.backgroundColor,
+                borderColor: $.this.color,
+                border: "2px solid",
+            }
+        }}>
+            color follows backgroundColor
+        </div>
+    `
+}
+```
+
+`$.this.propertyName` creates a DeferredPointer that references another property within the same attribute object. The reference is resolved at render time.
+
+### Derived Pointers
+```javascript
+import { $, h as html, on } from "hstd"
+
+const Dashboard = () => {
+
+    const query = $('');
+
+    // Debounce input by 300ms
+    const debounced = query.timeout(300);
+
+    // Derive display text
+    const status = debounced.isit(
+        debounced.into(q => `Searching: ${q}`),
+        "Type to search"
+    );
+
+    return html`
+        <input ${{ [io.value]: query, placeholder: "Search..." }}>
+        <p>${status}</p>
+    `
+}
+```
+
+Pointers support chained derivations: `.into(fn)`, `.not()`, `.bool()`, `.isit(ifTrue, ifFalse)`, `.timeout(ms)`, `.until(value)`, `.sum(n)`, `.sub(n)`, `.mul(n)`, `.div(n)`, `.mod(n)`, `.is(v)`, `.seq(v)`, `.or(v)`, `.and(v)`.
 
 ## Packages
 

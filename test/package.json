@@ -1,0 +1,10 @@
+{
+  "name": "hstd-test",
+  "type": "module",
+  "scripts": {
+    "test": "node --test --experimental-vm-modules *.test.js"
+  },
+  "devDependencies": {
+    "jsdom": "^24.0.0"
+  }
+}
