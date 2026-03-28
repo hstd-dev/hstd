@@ -1,0 +1,69 @@
+{
+  "name": "@hstd/ui",
+  "version": "0.1.0",
+  "description": "Accessible UI primitives for HyperStandard — the foundation for component libraries",
+  "type": "module",
+  "main": "./src/mod.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hstd-dev/hstd.git"
+  },
+  "author": "ihasq",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hstd-dev/hstd/issues"
+  },
+  "exports": {
+    ".": "./src/mod.js",
+    "./accordion": "./src/primitives/accordion.js",
+    "./alert-dialog": "./src/primitives/alert-dialog.js",
+    "./avatar": "./src/primitives/avatar.js",
+    "./checkbox": "./src/primitives/checkbox.js",
+    "./collapsible": "./src/primitives/collapsible.js",
+    "./context-menu": "./src/primitives/context-menu.js",
+    "./dialog": "./src/primitives/dialog.js",
+    "./dropdown-menu": "./src/primitives/dropdown-menu.js",
+    "./hover-card": "./src/primitives/hover-card.js",
+    "./label": "./src/primitives/label.js",
+    "./menubar": "./src/primitives/menubar.js",
+    "./navigation-menu": "./src/primitives/navigation-menu.js",
+    "./popover": "./src/primitives/popover.js",
+    "./progress": "./src/primitives/progress.js",
+    "./radio-group": "./src/primitives/radio-group.js",
+    "./scroll-area": "./src/primitives/scroll-area.js",
+    "./select": "./src/primitives/select.js",
+    "./separator": "./src/primitives/separator.js",
+    "./slider": "./src/primitives/slider.js",
+    "./switch": "./src/primitives/switch.js",
+    "./tabs": "./src/primitives/tabs.js",
+    "./toast": "./src/primitives/toast.js",
+    "./toggle": "./src/primitives/toggle.js",
+    "./toggle-group": "./src/primitives/toggle-group.js",
+    "./toolbar": "./src/primitives/toolbar.js",
+    "./tooltip": "./src/primitives/tooltip.js",
+    "./portal": "./src/core/portal.js",
+    "./presence": "./src/core/presence.js",
+    "./slot": "./src/core/slot.js",
+    "./focus-scope": "./src/core/focus-scope.js",
+    "./dismissable-layer": "./src/core/dismissable-layer.js",
+    "./popper": "./src/core/popper.js",
+    "./visually-hidden": "./src/core/visually-hidden.js"
+  },
+  "homepage": "https://hstd.io",
+  "keywords": [
+    "hstd",
+    "hyperstandard",
+    "ui",
+    "primitives",
+    "accessible",
+    "components",
+    "radix",
+    "headless"
+  ],
+  "files": [
+    "src"
+  ],
+  "peerDependencies": {
+    "@hstd/std": "^0.1.0"
+  }
+}
