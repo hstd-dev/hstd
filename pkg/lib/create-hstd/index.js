@@ -53,95 +53,65 @@ dist
 *.local
 `;
 
-const mainJS = `import { $, h as html, on, css, io } from "@hstd/std"
+const appTemplate = (ext) => `import { $, h as html, on, css, io } from "@hstd/std"
 
-const count = $(0);
+// Preserve reactive state across HMR updates
+const count = import.meta.hot?.data?.count ?? $(0);
 
-document.body[html] = html\`
-  <div \${{
-    [css]: {
-      maxWidth: "640px",
-      margin: "100px auto",
-      padding: "0 24px",
-      fontFamily: "system-ui, -apple-system, sans-serif",
-      textAlign: "center",
-      color: "#ffffffde",
-    }
-  }}>
-    <h1>hstd + Vite</h1>
-    <p \${{ [css.color]: "#888" }}>Edit src/main.js and save to see updates.</p>
-
+function App() {
+  return html\`
     <div \${{
       [css]: {
-        display: "flex",
-        gap: "12px",
-        justifyContent: "center",
-        marginTop: "32px",
+        maxWidth: "640px",
+        margin: "100px auto",
+        padding: "0 24px",
+        fontFamily: "system-ui, -apple-system, sans-serif",
+        textAlign: "center",
+        color: "#ffffffde",
       }
     }}>
-      <button \${{
-        [on.click]: () => count.\$++,
+      <h1>hstd + Vite</h1>
+      <p \${{ [css.color]: "#888" }}>Edit src/main.${ext} and save to see updates.</p>
+
+      <div \${{
         [css]: {
-          padding: "12px 28px",
-          fontSize: "16px",
-          fontFamily: "inherit",
-          fontWeight: "600",
-          backgroundColor: "#646cff",
-          color: "white",
-          border: "none",
-          borderRadius: "8px",
-          cursor: "pointer",
+          display: "flex",
+          gap: "12px",
+          justifyContent: "center",
+          marginTop: "32px",
         }
-      }}>Count is \${count}</button>
+      }}>
+        <button \${{
+          [on.click]: () => count.\$++,
+          [css]: {
+            padding: "12px 28px",
+            fontSize: "16px",
+            fontFamily: "inherit",
+            fontWeight: "600",
+            backgroundColor: "#646cff",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+          }
+        }}>Count is \${count}</button>
+      </div>
     </div>
-  </div>
-\`;
+  \`;
+}
+
+document.body[html] = App();
+
+if (import.meta.hot) {
+  import.meta.hot.dispose((data) => {
+    data.count = count;
+  });
+  import.meta.hot.accept();
+}
 `;
 
-const mainTS = `import { $, h as html, on, css, io } from "@hstd/std"
-
-const count = $(0);
-
-document.body[html] = html\`
-  <div \${{
-    [css]: {
-      maxWidth: "640px",
-      margin: "100px auto",
-      padding: "0 24px",
-      fontFamily: "system-ui, -apple-system, sans-serif",
-      textAlign: "center",
-      color: "#ffffffde",
-    }
-  }}>
-    <h1>hstd + Vite</h1>
-    <p \${{ [css.color]: "#888" }}>Edit src/main.ts and save to see updates.</p>
-
-    <div \${{
-      [css]: {
-        display: "flex",
-        gap: "12px",
-        justifyContent: "center",
-        marginTop: "32px",
-      }
-    }}>
-      <button \${{
-        [on.click]: () => count.\$++,
-        [css]: {
-          padding: "12px 28px",
-          fontSize: "16px",
-          fontFamily: "inherit",
-          fontWeight: "600",
-          backgroundColor: "#646cff",
-          color: "white",
-          border: "none",
-          borderRadius: "8px",
-          cursor: "pointer",
-        }
-      }}>Count is \${count}</button>
-    </div>
-  </div>
-\`;
-`;
+const mainJS = appTemplate("js");
+const mainTS = appTemplate("ts");
 
 const packageJson = (isTS) => JSON.stringify({
 	name: pkgName,

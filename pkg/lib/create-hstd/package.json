@@ -1,6 +1,6 @@
 {
   "name": "create-hstd",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Scaffold a Vite + HyperStandard project",
   "type": "module",
   "bin": {
