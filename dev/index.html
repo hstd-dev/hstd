@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HyperStandard Dev Test</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 { color: #333; border-bottom: 2px solid #333; padding-bottom: 10px; }
+    h2 { color: #555; margin-top: 30px; }
+    section {
+      background: white;
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #4a90d9;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover { background: #357abd; }
+    button:active { background: #2a5f8f; }
+    input[type="text"], input[type="range"], input[type="number"] {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin: 5px;
+    }
+    .output {
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+      font-family: monospace;
+    }
+    .flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    ul { padding-left: 20px; }
+    li { margin: 5px 0; }
+    .card {
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+    .log {
+      background: #1e1e1e;
+      color: #0f0;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    h4 { color: #666; margin: 20px 0 10px 0; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+    h4:first-of-type { margin-top: 0; }
+    input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+    input[type="color"] { width: 50px; height: 35px; border: none; cursor: pointer; }
+    input[type="date"] { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; }
+    textarea { resize: vertical; }
+    table { background: white; }
+    table th, table td { border: 1px solid #ddd; }
+    svg { display: block; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <h1>HyperStandard Dev Test</h1>
+  <div id="app"></div>
+
+  <script type="module">
+    // Import from local source
+    import { $, h, on, css, io } from '../pkg/lib/@hstd/std/src/mod.js';
+
+    const log = (msg) => {
+      const logEl = document.getElementById('log');
+      if (logEl) {
+        logEl.textContent += `[${new Date().toLocaleTimeString()}] ${msg}\n`;
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+      console.log(msg);
+    };
+
+    // ========================================
+    // Section 1: Basic Pointer
+    // ========================================
+    const Section1 = () => {
+      const count = $(0);
+      const doubled = count.into(x => x * 2);
+      const isEven = count.into(x => x % 2 === 0);
+
+      return h`
+        <section>
+          <h2>1. Basic Pointer</h2>
+          <div class="flex">
+            <button ${{ [on.click]: () => count.$-- }}>-</button>
+            <span style="font-size: 24px; min-width: 50px; text-align: center;">${count}</span>
+            <button ${{ [on.click]: () => count.$++ }}>+</button>
+          </div>
+          <div class="output">
+            <div>Count: ${count}</div>
+            <div>Doubled: ${doubled}</div>
+            <div>Is Even: ${isEven.isit('Yes', 'No')}</div>
+          </div>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 2: Pointer Operations
+    // ========================================
+    const Section2 = () => {
+      const a = $(10);
+      const b = $(5);
+
+      return h`
+        <section>
+          <h2>2. Pointer Operations</h2>
+          <div class="flex">
+            <label>A: <input ${{ [io.value]: a, type: 'number', style: 'width: 80px' }}></label>
+            <label>B: <input ${{ [io.value]: b, type: 'number', style: 'width: 80px' }}></label>
+          </div>
+          <div class="output">
+            <div>A + B = ${a.sum(b)}</div>
+            <div>A - B = ${a.sub(b)}</div>
+            <div>A * B = ${a.mul(b)}</div>
+            <div>A / B = ${a.div(b)}</div>
+            <div>A % B = ${a.mod(b)}</div>
+            <div>A === B: ${a.seq(b).isit('true', 'false')}</div>
+          </div>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 3: Two-Way Binding (io)
+    // ========================================
+    const Section3 = () => {
+      const text = $('');
+      const range = $(50);
+
+      return h`
+        <section>
+          <h2>3. Two-Way Binding (io)</h2>
+          <div>
+            <h4>Text Sync</h4>
+            <div class="flex">
+              <input ${{ [io.value]: text, type: 'text', placeholder: 'Type here...' }}>
+              <input ${{ [io.value]: text, type: 'text', placeholder: 'Synced!' }}>
+            </div>
+            <div class="output">Value: "${text}"</div>
+          </div>
+          <div>
+            <h4>Range Sync</h4>
+            <div class="flex">
+              <input ${{ [io.value]: range, type: 'range', min: '0', max: '100' }}>
+              <input ${{ [io.value]: range, type: 'number', style: 'width: 80px' }}>
+            </div>
+            <div class="output">Value: ${range}</div>
+          </div>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 4: CSS Binding
+    // ========================================
+    const Section4 = () => {
+      const hue = $(200);
+      const size = $(100);
+
+      return h`
+        <section>
+          <h2>4. CSS Binding</h2>
+          <div class="flex">
+            <label>Hue: <input ${{ [io.value]: hue, type: 'range', min: '0', max: '360' }}></label>
+            <label>Size: <input ${{ [io.value]: size, type: 'range', min: '50', max: '200' }}></label>
+          </div>
+          <div style="margin-top: 20px;">
+            <div ${{
+              [css.width]: size.into(s => s + 'px'),
+              [css.height]: size.into(s => s + 'px'),
+              [css.backgroundColor]: hue.into(h => `hsl(${h}, 70%, 50%)`),
+              [css.borderRadius]: '8px',
+              [css.transition]: 'all 0.2s ease'
+            }}></div>
+          </div>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 5: ArrayPointer Basic
+    // ========================================
+    const Section5 = () => {
+      const items = $(['Apple', 'Banana', 'Cherry']);
+      const newItem = $('');
+
+      const addItem = () => {
+        if (newItem.$) {
+          items.push(newItem.$);
+          newItem.$ = '';
+          log(`Added: ${items.$[items.$.length - 1]}`);
+        }
+      };
+
+      const removeItem = (index) => {
+        const removed = items.$[index];
+        items.splice(index, 1);
+        log(`Removed: ${removed}`);
+      };
+
+      return h`
+        <section>
+          <h2>5. ArrayPointer Basic</h2>
+          <div class="flex">
+            <input ${{ [io.value]: newItem, type: 'text', placeholder: 'New item...' }}>
+            <button ${{ [on.click]: addItem }}>Add</button>
+            <button ${{ [on.click]: () => items.pop() }}>Pop</button>
+            <button ${{ [on.click]: () => items.shift() }}>Shift</button>
+            <button ${{ [on.click]: () => items.reverse() }}>Reverse</button>
+          </div>
+          <ul>
+            ${items.map((item, i) => h`
+              <li class="flex">
+                <span>${item}</span>
+                <button ${{ [on.click]: () => removeItem(i), style: 'padding: 2px 8px; font-size: 12px;' }}>x</button>
+              </li>
+            `)}
+          </ul>
+          <div class="output">
+            Count: ${items.reduce((acc) => acc + 1, 0)} items
+          </div>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 6: ArrayPointer Swap
+    // ========================================
+    const Section6 = () => {
+      const colors = $(['Red', 'Green', 'Blue', 'Yellow']);
+
+      return h`
+        <section>
+          <h2>6. ArrayPointer Swap</h2>
+          <div class="flex">
+            <button ${{ [on.click]: () => colors.swap(0, 1) }}>Swap 0-1</button>
+            <button ${{ [on.click]: () => colors.swap(1, 2) }}>Swap 1-2</button>
+            <button ${{ [on.click]: () => colors.swap(2, 3) }}>Swap 2-3</button>
+            <button ${{ [on.click]: () => colors.swapOf('Red', 'Blue') }}>Swap Red-Blue</button>
+          </div>
+          <div class="flex" style="margin-top: 15px;">
+            ${colors.map((color, i) => h`
+              <div ${{ style: 'background-color: ' + color.toLowerCase() + '; color: white; padding: 20px; border-radius: 8px; min-width: 80px; text-align: center;' }}>
+                ${i}: ${color}
+              </div>
+            `)}
+          </div>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 7: Pointer.up (Parent Reference)
+    // ========================================
+    const Section7 = () => {
+      const root = $(10);
+      const child = root.into(x => x * 2);
+      const grandchild = child.into(x => x + 5);
+
+      return h`
+        <section>
+          <h2>7. Pointer.up (Parent Reference)</h2>
+          <div class="flex">
+            <label>Root Value: <input ${{ [io.value]: root, type: 'number', style: 'width: 80px' }}></label>
+          </div>
+          <div class="output">
+            <div>Root: ${root}</div>
+            <div>Child (root * 2): ${child}</div>
+            <div>Grandchild (child + 5): ${grandchild}</div>
+            <div>grandchild.up.$: ${grandchild.up}</div>
+            <div>grandchild.up.up.$: ${grandchild.up.up}</div>
+          </div>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 8: Template Literal Pointer
+    // ========================================
+    const Section8 = () => {
+      const firstName = $('John');
+      const lastName = $('Doe');
+      const fullName = $`${firstName} ${lastName}`;
+
+      return h`
+        <section>
+          <h2>8. Template Literal Pointer</h2>
+          <div class="flex">
+            <input ${{ [io.value]: firstName, type: 'text', placeholder: 'First name' }}>
+            <input ${{ [io.value]: lastName, type: 'text', placeholder: 'Last name' }}>
+          </div>
+          <div class="output">
+            Full Name: ${fullName}
+          </div>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 9: Async Generator Component
+    // ========================================
+    const Section9 = () => {
+      const trigger = $(0);
+
+      const AsyncComponent = async function*() {
+        yield h`<div style="color: orange;">Loading...</div>`;
+
+        await new Promise(r => setTimeout(r, 1000));
+
+        yield h`<div style="color: blue;">Fetching data...</div>`;
+
+        await new Promise(r => setTimeout(r, 1000));
+
+        const data = { name: 'HyperStandard', version: '1.0.0' };
+
+        yield h`
+          <div style="color: green;">
+            Loaded: ${data.name} v${data.version}
+          </div>
+        `;
+      };
+
+      return h`
+        <section>
+          <h2>9. Async Generator Component</h2>
+          <button ${{ [on.click]: () => trigger.$++ }}>Reload (${trigger})</button>
+          <div class="card">
+            ${trigger.into(() => AsyncComponent())}
+          </div>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 10: Pointer.until() / .timeout()
+    // ========================================
+    const Section10 = () => {
+      const value = $(0);
+      const debounced = value.timeout(300);
+      const status = $('Waiting...');
+
+      const waitForFive = async () => {
+        status.$ = 'Waiting for value to reach 5...';
+        await value.until(5);
+        status.$ = 'Reached 5!';
+        log('until(5) resolved');
+      };
+
+      return h`
+        <section>
+          <h2>10. Pointer.until() / .timeout()</h2>
+          <div class="flex">
+            <button ${{ [on.click]: () => value.$-- }}>-</button>
+            <span style="font-size: 24px; min-width: 50px; text-align: center;">${value}</span>
+            <button ${{ [on.click]: () => value.$++ }}>+</button>
+            <button ${{ [on.click]: waitForFive }}>Wait for 5</button>
+          </div>
+          <div class="output">
+            <div>Immediate: ${value}</div>
+            <div>Debounced (300ms): ${debounced}</div>
+            <div>Status: ${status}</div>
+          </div>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 11: Element Reference with id
+    // ========================================
+    const Section11 = () => {
+      const message = $('Click the button to update');
+      const clickCount = $(0);
+      const refStatus = $('');
+
+      // Store ref for later use
+      let targetRef = null;
+
+      const updateViaRef = () => {
+        if (targetRef) {
+          clickCount.$++;
+          targetRef.style.backgroundColor = `hsl(${clickCount.$ * 30}, 70%, 90%)`;
+          refStatus.$ = `Updated! BG color changed (${clickCount.$} times)`;
+          log(`targetDiv updated via ref: click #${clickCount.$}`);
+        }
+      };
+
+      return h`
+        <section>
+          <h2>11. Element Reference (.on callback)</h2>
+          <div ${{ id: 'targetDiv' }} class="card">
+            ${message}
+          </div>
+          <button ${{ [on.click]: updateViaRef }}>Update via .on() ref</button>
+          <div class="output">${refStatus}</div>
+        </section>
+      `.on(({ targetDiv }) => {
+        targetRef = targetDiv;
+        refStatus.$ = 'Reference obtained: ' + (targetDiv ? 'success' : 'failed');
+        log('targetDiv reference obtained: ' + (targetDiv ? 'success' : 'failed'));
+      });
+    };
+
+    // ========================================
+    // Section 12: Advanced Event Binding
+    // ========================================
+    const Section12 = () => {
+      const eventLogText = $('No events yet...');
+      const eventLogArr = [];
+      const keyPressed = $('');
+      const mousePos = $('(0, 0)');
+      const isFocused = $(false);
+
+      const logEvent = (msg) => {
+        eventLogArr.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
+        if (eventLogArr.length > 10) eventLogArr.shift();
+        eventLogText.$ = eventLogArr.join('\n');
+        log(msg);
+      };
+
+      return h`
+        <section>
+          <h2>12. Advanced Event Binding</h2>
+
+          <h4>Keyboard Events</h4>
+          <input ${{
+            type: 'text',
+            placeholder: 'Type here to test keyboard events...',
+            [on.keydown]: (e) => { keyPressed.$ = 'Down: ' + e.key; logEvent('keydown: ' + e.key); },
+            [on.keyup]: (e) => { keyPressed.$ = 'Up: ' + e.key; logEvent('keyup: ' + e.key); }
+          }}>
+          <div class="output">Key: ${keyPressed}</div>
+
+          <h4>Mouse Events</h4>
+          <div ${{
+            style: 'background: #eee; padding: 30px; border-radius: 8px; text-align: center; cursor: crosshair;',
+            [on.mousemove]: (e) => mousePos.$ = `(${e.offsetX}, ${e.offsetY})`,
+            [on.mousedown]: () => logEvent('mousedown'),
+            [on.mouseup]: () => logEvent('mouseup'),
+            [on.dblclick]: () => logEvent('dblclick!')
+          }}>
+            Move mouse here | Position: ${mousePos}
+          </div>
+
+          <h4>Focus Events</h4>
+          <input ${{
+            type: 'text',
+            placeholder: 'Focus/blur test...',
+            [on.focusin]: () => { isFocused.$ = true; logEvent('focusin'); },
+            [on.focusout]: () => { isFocused.$ = false; logEvent('focusout'); }
+          }}>
+          <div class="output">Focused: ${isFocused.isit('Yes', 'No')}</div>
+
+          <h4>Event Log</h4>
+          <div class="output" style="font-size: 11px; max-height: 100px; overflow-y: auto; white-space: pre;">
+            ${eventLogText}
+          </div>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 13: Advanced CSS Binding
+    // ========================================
+    const Section13 = () => {
+      const rotation = $(0);
+      const scale = $(1);
+      const opacity = $(1);
+      const blur = $(0);
+      const isVisible = $(true);
+      const flexDir = $('row');
+
+      // Use template literal pointer to depend on both rotation and scale
+      const transform = $`rotate(${rotation}deg) scale(${scale})`;
+      const filter = $`blur(${blur}px)`;
+
+      return h`
+        <section>
+          <h2>13. Advanced CSS Binding</h2>
+
+          <h4>Transform & Filter</h4>
+          <div class="flex">
+            <label>Rotate: <input ${{ [io.value]: rotation, type: 'range', min: '0', max: '360' }}> ${rotation}deg</label>
+            <label>Scale: <input ${{ [io.value]: scale, type: 'range', min: '0.5', max: '2', step: '0.1' }}> ${scale}x</label>
+            <label>Blur: <input ${{ [io.value]: blur, type: 'range', min: '0', max: '10' }}> ${blur}px</label>
+            <label>Opacity: <input ${{ [io.value]: opacity, type: 'range', min: '0', max: '1', step: '0.1' }}> ${opacity}</label>
+          </div>
+          <div style="margin: 20px; display: flex; justify-content: center;">
+            <div ${{
+              style: 'width: 100px; height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;',
+              [css.transform]: transform,
+              [css.filter]: filter,
+              [css.opacity]: opacity
+            }}>CSS</div>
+          </div>
+
+          <h4>Display Toggle</h4>
+          <button ${{ [on.click]: () => isVisible.$ = !isVisible.$ }}>Toggle Visibility</button>
+          <div ${{
+            style: 'background: #4a90d9; color: white; padding: 20px; margin-top: 10px; border-radius: 8px;',
+            [css.display]: isVisible.isit('block', 'none')
+          }}>I can be hidden!</div>
+
+          <h4>Flexbox Direction</h4>
+          <div class="flex">
+            <button ${{ [on.click]: () => flexDir.$ = 'row' }}>Row</button>
+            <button ${{ [on.click]: () => flexDir.$ = 'column' }}>Column</button>
+            <button ${{ [on.click]: () => flexDir.$ = 'row-reverse' }}>Row Reverse</button>
+          </div>
+          <div ${{
+            style: 'display: flex; gap: 10px; margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 8px;',
+            [css.flexDirection]: flexDir
+          }}>
+            <div style="padding: 10px; background: #e74c3c; color: white; border-radius: 4px;">1</div>
+            <div style="padding: 10px; background: #2ecc71; color: white; border-radius: 4px;">2</div>
+            <div style="padding: 10px; background: #3498db; color: white; border-radius: 4px;">3</div>
+          </div>
+          <div class="output">Direction: ${flexDir}</div>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 14: Advanced Two-Way Binding
+    // ========================================
+    const Section14 = () => {
+      const checkbox = $(false);
+      const textarea = $('');
+      const selectVal = $('option1');
+      const colorVal = $('#3498db');
+      const dateVal = $('2024-01-01');
+
+      return h`
+        <section>
+          <h2>14. Advanced Two-Way Binding</h2>
+
+          <h4>Checkbox</h4>
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input ${{ type: 'checkbox', [io.checked]: checkbox }}>
+            I agree to the terms
+          </label>
+          <div class="output">Checked: ${checkbox.isit('Yes', 'No')}</div>
+
+          <h4>Textarea</h4>
+          <textarea ${{
+            [io.value]: textarea,
+            style: 'width: 100%; height: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;',
+            placeholder: 'Type multiple lines here...'
+          }}></textarea>
+          <div class="output">Length: ${textarea.into(t => t.length)} characters</div>
+
+          <h4>Select</h4>
+          <select ${{ [io.value]: selectVal, style: 'padding: 8px; border-radius: 4px;' }}>
+            <option value="option1">Option 1</option>
+            <option value="option2">Option 2</option>
+            <option value="option3">Option 3</option>
+          </select>
+          <div class="output">Selected: ${selectVal}</div>
+
+          <h4>Color & Date</h4>
+          <div class="flex">
+            <label>Color: <input ${{ type: 'color', [io.value]: colorVal }}></label>
+            <label>Date: <input ${{ type: 'date', [io.value]: dateVal }}></label>
+          </div>
+          <div class="output">
+            <div>Color: ${colorVal}</div>
+            <div>Date: ${dateVal}</div>
+          </div>
+          <div ${{
+            style: 'width: 100%; height: 40px; border-radius: 8px; margin-top: 10px;',
+            [css.backgroundColor]: colorVal
+          }}></div>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 15: Nested Components
+    // ========================================
+    const Section15 = () => {
+      const Card = (title, content) => h`
+        <div class="card">
+          <h4 style="margin: 0 0 10px 0;">${title}</h4>
+          <p style="margin: 0; color: #666;">${content}</p>
+        </div>
+      `;
+
+      const Button = (label, onClick, variant = 'primary') => h`
+        <button ${{
+          [on.click]: onClick,
+          style: variant === 'danger'
+            ? 'background: #e74c3c;'
+            : variant === 'success'
+              ? 'background: #2ecc71;'
+              : ''
+        }}>${label}</button>
+      `;
+
+      const clickCount = $(0);
+
+      return h`
+        <section>
+          <h2>15. Nested Components</h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            ${Card('Component 1', 'This is a reusable card component')}
+            ${Card('Component 2', 'Cards can have different content')}
+            ${Card('Dynamic', clickCount.into(c => `Clicked ${c} times`))}
+          </div>
+          <div class="flex" style="margin-top: 15px;">
+            ${Button('Primary', () => { clickCount.$++; log('Primary clicked'); })}
+            ${Button('Success', () => { clickCount.$++; log('Success clicked'); }, 'success')}
+            ${Button('Danger', () => { clickCount.$ = 0; log('Reset!'); }, 'danger')}
+          </div>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 16: Dynamic Shapes (CSS-based)
+    // ========================================
+    const Section16 = () => {
+      const circleSize = $(80);
+      const rectWidth = $(120);
+      const hue = $(120);
+
+      return h`
+        <section>
+          <h2>16. Dynamic Shapes</h2>
+          <div class="flex">
+            <label>Circle: <input ${{ [io.value]: circleSize, type: 'range', min: '40', max: '120' }}></label>
+            <label>Rect W: <input ${{ [io.value]: rectWidth, type: 'range', min: '60', max: '180' }}></label>
+            <label>Hue: <input ${{ [io.value]: hue, type: 'range', min: '0', max: '360' }}></label>
+          </div>
+          <div style="display: flex; gap: 30px; align-items: center; justify-content: center; padding: 30px; background: #f0f0f0; border-radius: 8px; margin-top: 10px;">
+            <div ${{
+              [css.width]: circleSize.into(s => s + 'px'),
+              [css.height]: circleSize.into(s => s + 'px'),
+              [css.borderRadius]: '50%',
+              [css.backgroundColor]: hue.into(h => `hsl(${h}, 70%, 50%)`),
+              [css.transition]: 'all 0.1s ease'
+            }}></div>
+            <div ${{
+              [css.width]: rectWidth.into(w => w + 'px'),
+              [css.height]: '80px',
+              [css.borderRadius]: '8px',
+              [css.backgroundColor]: hue.into(h => `hsl(${(h + 180) % 360}, 70%, 50%)`),
+              [css.transition]: 'all 0.1s ease'
+            }}></div>
+          </div>
+          <div class="output">
+            Circle: ${circleSize}px | Rect: ${rectWidth}px | Hue: ${hue}
+          </div>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 17: Table with Dynamic Data
+    // ========================================
+    const Section17 = () => {
+      const users = $([
+        { id: 1, name: 'Alice', score: 85 },
+        { id: 2, name: 'Bob', score: 92 },
+        { id: 3, name: 'Charlie', score: 78 }
+      ]);
+      const newName = $('');
+      const newScore = $(0);
+
+      const addUser = () => {
+        if (newName.$) {
+          users.push({ id: Date.now(), name: newName.$, score: Number(newScore.$) });
+          newName.$ = '';
+          newScore.$ = 0;
+          log(`Added user: ${users.$[users.$.length - 1].name}`);
+        }
+      };
+
+      const sortByScore = () => {
+        users.$ = [...users.$].sort((a, b) => b.score - a.score);
+        log('Sorted by score');
+      };
+
+      return h`
+        <section>
+          <h2>17. Table with Dynamic Data</h2>
+          <div class="flex" style="margin-bottom: 15px;">
+            <input ${{ [io.value]: newName, type: 'text', placeholder: 'Name' }}>
+            <input ${{ [io.value]: newScore, type: 'number', placeholder: 'Score', style: 'width: 80px' }}>
+            <button ${{ [on.click]: addUser }}>Add User</button>
+            <button ${{ [on.click]: sortByScore }}>Sort by Score</button>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; gap: 1px; background: #ddd; border-radius: 8px; overflow: hidden;">
+            <div style="padding: 10px; background: #4a90d9; color: white; font-weight: bold;">ID</div>
+            <div style="padding: 10px; background: #4a90d9; color: white; font-weight: bold;">Name</div>
+            <div style="padding: 10px; background: #4a90d9; color: white; font-weight: bold;">Score</div>
+            <div style="padding: 10px; background: #4a90d9; color: white; font-weight: bold;">Action</div>
+            ${users.map((user, i) => h`
+              <div style="padding: 10px; background: white;">${user.id}</div>
+              <div style="padding: 10px; background: white;">${user.name}</div>
+              <div style="padding: 10px; background: white;">${user.score}</div>
+              <div style="padding: 10px; background: white;">
+                <button ${{ [on.click]: () => users.splice(i, 1), style: 'padding: 4px 8px; font-size: 12px; background: #e74c3c;' }}>Delete</button>
+              </div>
+            `)}
+          </div>
+          <div class="output">
+            Total: ${users.reduce((acc) => acc + 1, 0)} users |
+            Average: ${users.reduce((sum, u) => sum + u.score, 0).into(total => {
+              const len = users.$.length;
+              return len ? (total / len).toFixed(1) : '0';
+            })}
+          </div>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 18: Form Validation
+    // ========================================
+    const Section18 = () => {
+      const email = $('');
+      const password = $('');
+      const confirmPassword = $('');
+      const submitted = $(false);
+
+      const isEmailValid = email.into(e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
+      const isPasswordValid = password.into(p => p.length >= 8);
+      const passwordsMatch = password.into(p => p === confirmPassword.$);
+      const isFormValid = isEmailValid.into(e => e && isPasswordValid.$ && password.$ === confirmPassword.$);
+
+      const handleSubmit = () => {
+        if (isFormValid.$) {
+          submitted.$ = true;
+          log('Form submitted successfully!');
+        } else {
+          log('Form validation failed');
+        }
+      };
+
+      return h`
+        <section>
+          <h2>18. Form Validation</h2>
+          <div style="max-width: 400px;">
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; margin-bottom: 5px;">Email</label>
+              <input ${{
+                [io.value]: email,
+                type: 'email',
+                placeholder: 'your@email.com',
+                style: 'width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;'
+              }}>
+              <div ${{
+                style: 'font-size: 12px; margin-top: 4px;',
+                [css.color]: isEmailValid.isit('green', 'red')
+              }}>${isEmailValid.isit('Valid email', 'Invalid email format')}</div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; margin-bottom: 5px;">Password</label>
+              <input ${{
+                [io.value]: password,
+                type: 'password',
+                placeholder: 'At least 8 characters',
+                style: 'width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;'
+              }}>
+              <div ${{
+                style: 'font-size: 12px; margin-top: 4px;',
+                [css.color]: isPasswordValid.isit('green', 'red')
+              }}>${isPasswordValid.isit('Password is strong', 'Min 8 characters required')}</div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+              <label style="display: block; margin-bottom: 5px;">Confirm Password</label>
+              <input ${{
+                [io.value]: confirmPassword,
+                type: 'password',
+                placeholder: 'Repeat password',
+                style: 'width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;'
+              }}>
+              <div ${{
+                style: 'font-size: 12px; margin-top: 4px;',
+                [css.color]: passwordsMatch.isit('green', 'red')
+              }}>${passwordsMatch.isit('Passwords match', 'Passwords do not match')}</div>
+            </div>
+
+            <button ${{
+              [on.click]: handleSubmit,
+              disabled: isFormValid.into(v => !v),
+              style: 'width: 100%; padding: 10px;'
+            }}>Submit</button>
+
+            ${submitted.isit(
+              h`<div class="output" style="background: #d4edda; color: #155724; margin-top: 15px;">Form submitted successfully!</div>`,
+              ''
+            )}
+          </div>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 19: Stress Test
+    // ========================================
+    const Section19 = () => {
+      const counter = $(0);
+      const arraySize = $(10);
+      const items = $([]);
+      const updateTime = $('');
+
+      const rapidUpdate = () => {
+        const start = performance.now();
+        for (let i = 0; i < 1000; i++) {
+          counter.$++;
+        }
+        updateTime.$ = `1000 updates in ${(performance.now() - start).toFixed(2)}ms`;
+        log(updateTime.$);
+      };
+
+      const generateArray = () => {
+        const start = performance.now();
+        const size = Number(arraySize.$);
+        items.$ = Array.from({ length: size }, (_, i) => `Item ${i + 1}`);
+        updateTime.$ = `Generated ${size} items in ${(performance.now() - start).toFixed(2)}ms`;
+        log(updateTime.$);
+      };
+
+      return h`
+        <section>
+          <h2>19. Stress Test</h2>
+
+          <h4>Rapid Pointer Updates</h4>
+          <div class="flex">
+            <button ${{ [on.click]: rapidUpdate }}>Run 1000 Updates</button>
+            <button ${{ [on.click]: () => counter.$ = 0 }}>Reset</button>
+          </div>
+          <div class="output">Counter: ${counter}</div>
+
+          <h4>Large Array Rendering</h4>
+          <div class="flex">
+            <label>Size: <input ${{ [io.value]: arraySize, type: 'number', min: '10', max: '1000', style: 'width: 80px' }}></label>
+            <button ${{ [on.click]: generateArray }}>Generate Array</button>
+            <button ${{ [on.click]: () => items.$ = [] }}>Clear</button>
+          </div>
+          <div style="max-height: 200px; overflow-y: auto; margin-top: 10px;">
+            ${items.map(item => h`<div style="padding: 4px; border-bottom: 1px solid #eee;">${item}</div>`)}
+          </div>
+
+          <div class="output" style="margin-top: 10px;">
+            ${updateTime}
+          </div>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 20: Conditional Rendering
+    // ========================================
+    const Section20 = () => {
+      const tab = $('home');
+      const showModal = $(false);
+
+      const TabContent = () => {
+        return tab.into(t => {
+          if (t === 'home') return h`<div class="card">Welcome to Home tab!</div>`;
+          if (t === 'profile') return h`<div class="card">This is your Profile.</div>`;
+          if (t === 'settings') return h`<div class="card">Settings panel here.</div>`;
+          return h`<div>Unknown tab</div>`;
+        });
+      };
+
+      return h`
+        <section>
+          <h2>20. Conditional Rendering</h2>
+
+          <h4>Tab Navigation</h4>
+          <div class="flex">
+            <button ${{ [on.click]: () => tab.$ = 'home', style: tab.into(t => t === 'home' ? 'background: #2a5f8f;' : '') }}>Home</button>
+            <button ${{ [on.click]: () => tab.$ = 'profile', style: tab.into(t => t === 'profile' ? 'background: #2a5f8f;' : '') }}>Profile</button>
+            <button ${{ [on.click]: () => tab.$ = 'settings', style: tab.into(t => t === 'settings' ? 'background: #2a5f8f;' : '') }}>Settings</button>
+          </div>
+          ${TabContent()}
+
+          <h4>Modal Toggle</h4>
+          <button ${{ [on.click]: () => showModal.$ = true }}>Open Modal</button>
+          ${showModal.into(show => show ? h`
+            <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+              <div style="background: white; padding: 30px; border-radius: 12px; max-width: 400px; text-align: center;">
+                <h3 style="margin-top: 0;">Modal Dialog</h3>
+                <p>This is a modal window that can be toggled.</p>
+                <button ${{ [on.click]: () => showModal.$ = false }}>Close</button>
+              </div>
+            </div>
+          ` : '')}
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 21: $.this (Property Bundle Reference)
+    // ========================================
+    const Section21 = () => {
+      // $.this creates DeferredPointers that reference other properties
+      // in the same attribute object (property bundle notation)
+
+      const dynamicBg = $('rgb(102, 126, 234)');
+
+      return h`
+        <section>
+          <h2>21. $.this (Property Bundle Reference)</h2>
+          <p style="color: #666; font-size: 14px;">
+            $.this.propertyName creates a DeferredPointer that references another property
+            in the same attribute object. Useful for property bundle notation.
+          </p>
+
+          <h4>Basic Property Reference</h4>
+          <p>Color references backgroundColor:</p>
+          <div ${{
+            [css]: {
+              backgroundColor: 'rgb(255, 100, 100)',
+              color: $.this.backgroundColor,
+              padding: '20px',
+              borderRadius: '8px',
+              textAlign: 'center'
+            }
+          }}>
+            Text color = background color (both rgb(255, 100, 100))
+          </div>
+
+          <h4>Chained References</h4>
+          <p>borderColor → color → backgroundColor:</p>
+          <div ${{
+            [css]: {
+              backgroundColor: 'rgb(100, 200, 100)',
+              color: $.this.backgroundColor,
+              borderColor: $.this.color,
+              border: '3px solid',
+              padding: '20px',
+              borderRadius: '8px',
+              textAlign: 'center'
+            }
+          }}>
+            All three colors are rgb(100, 200, 100)
+          </div>
+
+          <h4>With Pointer Values</h4>
+          <p>DeferredPointer can reference a Pointer value:</p>
+          <div ${{
+            [css]: {
+              backgroundColor: dynamicBg,
+              color: $.this.backgroundColor,
+              padding: '20px',
+              borderRadius: '8px',
+              textAlign: 'center'
+            }
+          }}>
+            Background controlled by Pointer
+          </div>
+          <div class="flex" style="gap: 8px; margin-top: 8px;">
+            <button ${{ [on.click]: () => { dynamicBg.$ = 'rgb(102, 126, 234)'; log('Set to purple'); } }}>Purple</button>
+            <button ${{ [on.click]: () => { dynamicBg.$ = 'rgb(234, 126, 102)'; log('Set to coral'); } }}>Coral</button>
+            <button ${{ [on.click]: () => { dynamicBg.$ = 'rgb(102, 234, 126)'; log('Set to mint'); } }}>Mint</button>
+          </div>
+          <div class="output">Current: ${dynamicBg}</div>
+
+          <h4>Mixed Properties</h4>
+          <p>Regular values alongside DeferredPointer:</p>
+          <div ${{
+            [css]: {
+              backgroundColor: 'rgb(50, 50, 100)',
+              padding: '20px',
+              margin: '10px 0',
+              borderRadius: '8px',
+              color: $.this.backgroundColor,
+              textAlign: 'center'
+            }
+          }}>
+            Padding and margin are independent, color references background
+          </div>
+
+          <h4>Interactive Theme Builder</h4>
+          <p>Pick a color — all properties follow via $.this:</p>
+          ${(() => {
+            const hue = $(220);
+            const bg = hue.into(h => `hsl(${h}, 60%, 50%)`);
+            const lightBg = hue.into(h => `hsl(${h}, 60%, 92%)`);
+
+            return h`
+              <input ${{ [io.value]: hue, type: 'range', min: '0', max: '360', style: 'width: 100%; margin: 8px 0;' }}>
+              <div class="output">hue: ${hue}</div>
+              <div ${{
+                [css]: {
+                  backgroundColor: bg,
+                  color: $.this.backgroundColor,
+                  borderColor: $.this.color,
+                  border: '3px solid',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  marginTop: '8px'
+                }
+              }}>
+                border = color = background (all from one hue)
+              </div>
+              <div ${{
+                [css]: {
+                  backgroundColor: lightBg,
+                  color: bg,
+                  borderColor: $.this.color,
+                  border: '2px solid',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  marginTop: '8px'
+                }
+              }}>
+                Light card — border matches text color
+              </div>
+            `;
+          })()}
+
+          <h4>Consistent Button Group</h4>
+          <p>Three buttons sharing color scheme via $.this:</p>
+          <div class="flex" style="gap: 8px;">
+            ${['Primary', 'Secondary', 'Tertiary'].map((label, i) => {
+              const colors = ['#4a90d9', '#e74c3c', '#2ecc71'];
+              return h`<button ${{
+                [css]: {
+                  backgroundColor: colors[i],
+                  color: 'white',
+                  borderColor: $.this.backgroundColor,
+                  border: '2px solid',
+                  padding: '10px 20px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '14px'
+                }
+              }}>${label}</button>`;
+            })}
+          </div>
+
+          <h4>Reactive Card with $.this</h4>
+          <p>Card border and shadow color derived from a reactive accent:</p>
+          ${(() => {
+            const accent = $('#6c5ce7');
+
+            return h`
+              <div style="display: flex; gap: 8px; margin: 8px 0;">
+                <button ${{ [on.click]: () => { accent.$ = '#6c5ce7'; log('Accent: purple'); } }}>Purple</button>
+                <button ${{ [on.click]: () => { accent.$ = '#00b894'; log('Accent: teal'); } }}>Teal</button>
+                <button ${{ [on.click]: () => { accent.$ = '#e17055'; log('Accent: orange'); } }}>Orange</button>
+              </div>
+              <div ${{
+                [css]: {
+                  borderColor: accent,
+                  border: '2px solid',
+                  borderRadius: '12px',
+                  padding: '20px',
+                  color: $.this.borderColor,
+                  backgroundColor: 'white'
+                }
+              }}>
+                <h4 ${{ [css.margin]: '0 0 8px', [css.color]: 'inherit' }}>Card Title</h4>
+                <p ${{ [css.color]: '#666' }}>The border and title color both follow the accent pointer. Click the buttons above to change them.</p>
+                <div class="output">accent: ${accent}</div>
+              </div>
+            `;
+          })()}
+
+          <h4>Form Label + Input Color Sync</h4>
+          <p>Label color and input border share the same value via $.this:</p>
+          ${(() => {
+            const name = $('');
+            const valid = name.into(n => n.length >= 3);
+            const statusColor = valid.isit('#2ecc71', '#e74c3c');
+
+            return h`
+              <div ${{
+                [css]: {
+                  color: statusColor,
+                  padding: '16px',
+                  borderRadius: '8px',
+                  border: '1px solid #ddd',
+                  marginTop: '8px'
+                }
+              }}>
+                <label ${{ [css.fontWeight]: '600', [css.color]: 'inherit' }}>
+                  Name (min 3 chars):
+                </label>
+                <input ${{
+                  [io.value]: name,
+                  type: 'text',
+                  placeholder: 'Type your name...',
+                  [css]: {
+                    display: 'block',
+                    marginTop: '8px',
+                    padding: '8px 12px',
+                    borderColor: statusColor,
+                    border: '2px solid',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    width: '200px',
+                    outline: 'none'
+                  }
+                }}>
+                <div class="output" style="margin-top: 8px;">
+                  Valid: ${valid} | Length: ${name.into(n => n.length)}
+                </div>
+              </div>
+            `;
+          })()}
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Section 22: Log Output
+    // ========================================
+    const Section22 = () => {
+      return h`
+        <section>
+          <h2>22. Log Output</h2>
+          <div id="log" class="log"></div>
+          <button ${{ [on.click]: () => document.getElementById('log').textContent = '' }}>Clear Log</button>
+        </section>
+      `;
+    };
+
+    // ========================================
+    // Mount App
+    // ========================================
+    const App = () => h`
+      ${Section1()}
+      ${Section2()}
+      ${Section3()}
+      ${Section4()}
+      ${Section5()}
+      ${Section6()}
+      ${Section7()}
+      ${Section8()}
+      ${Section9()}
+      ${Section10()}
+      ${Section11()}
+      ${Section12()}
+      ${Section13()}
+      ${Section14()}
+      ${Section15()}
+      ${Section16()}
+      ${Section17()}
+      ${Section18()}
+      ${Section19()}
+      ${Section20()}
+      ${Section21()}
+      ${Section22()}
+    `;
+
+    document.getElementById('app')[h] = App();
+    log('HyperStandard Dev Test loaded');
+  </script>
+</body>
+</html>
