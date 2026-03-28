@@ -44,7 +44,6 @@ const indexHtml = (entry) => `<!doctype html>
     <title>${pkgName}</title>
   </head>
   <body>
-    <div id="app"></div>
     <script type="module" src="/src/${entry}"></script>
   </body>
 </html>
@@ -55,83 +54,170 @@ dist
 *.local
 `;
 
-const counterModule = (ext) => `import { $, h as html, on } from "@hstd/std"
+const appModule = (ext) => `import { $, h as html, on, css } from "@hstd/std"
+import hstdLogo from "./assets/hstd.svg"
+import viteLogo from "./assets/vite.svg"
 
-export function setupCounter(element) {
-  const count = import.meta.hot?.data?.count ?? $(0);
+const link = {
+  [css]: {
+    color: "inherit",
+    textDecoration: "none",
+  }
+};
 
-  element[html] = html\`
+const btnStyle = {
+  [css]: {
+    fontFamily: "var(--mono)",
+    fontSize: "16px",
+    padding: "5px 10px",
+    borderRadius: "5px",
+    color: "var(--accent)",
+    background: "var(--accent-bg)",
+    border: "2px solid transparent",
+    cursor: "pointer",
+  }
+};
+
+const logoStyle = (size = "96px") => ({
+  [css]: {
+    height: size,
+    willChange: "filter",
+    transition: "filter 0.3s",
+  }
+});
+
+function Counter() {
+  const count = $(0);
+
+  return html\`
     <button \${{
+      ...btnStyle,
       [on.click]: () => count.\$++,
     }}>Count is \${count}</button>
   \`;
+}
 
-  if (import.meta.hot) {
-    import.meta.hot.dispose((data) => { data.count = count; });
-    import.meta.hot.accept();
-  }
+function LinkButton(href, label, iconSrc) {
+  return html\`
+    <a \${{
+      href, target: "_blank",
+      [css]: {
+        color: "var(--text-h)",
+        fontSize: "16px",
+        borderRadius: "6px",
+        background: "var(--social-bg)",
+        display: "flex",
+        padding: "6px 12px",
+        alignItems: "center",
+        gap: "8px",
+        textDecoration: "none",
+      }
+    }}>\${iconSrc
+      ? html\`<img \${{ src: iconSrc, alt: "", [css]: { height: "18px", width: "18px" } }}>\`
+      : ""
+    }\${label}</a>
+  \`;
+}
+
+export function App() {
+  return html\`
+    <div \${{
+      [css]: {
+        width: "1126px",
+        maxWidth: "100%",
+        margin: "0 auto",
+        textAlign: "center",
+        borderInline: "1px solid var(--border)",
+        minHeight: "100svh",
+        display: "flex",
+        flexDirection: "column",
+        boxSizing: "border-box",
+      }
+    }}>
+
+      <section \${{
+        [css]: {
+          display: "flex",
+          flexDirection: "column",
+          gap: "25px",
+          placeContent: "center",
+          placeItems: "center",
+          flexGrow: "1",
+          padding: "32px 20px",
+        }
+      }}>
+        <div \${{ [css]: { display: "flex", justifyContent: "center", gap: "32px" } }}>
+          <a \${{ ...link, href: "https://hstd.io", target: "_blank" }}>
+            <img \${{ ...logoStyle(), src: hstdLogo, alt: "hstd logo" }}>
+          </a>
+          <a \${{ ...link, href: "https://vite.dev", target: "_blank" }}>
+            <img \${{ ...logoStyle("88px"), src: viteLogo, alt: "Vite logo" }}>
+          </a>
+        </div>
+
+        <div>
+          <h1 \${{
+            [css]: {
+              fontSize: "56px",
+              letterSpacing: "-1.68px",
+              margin: "32px 0",
+              fontWeight: "500",
+              color: "var(--text-h)",
+            }
+          }}>hstd + Vite</h1>
+          <p>Edit <code>src/App.${ext}</code> and save to test HMR</p>
+        </div>
+
+        \${Counter()}
+      </section>
+
+      <section \${{
+        [css]: {
+          display: "flex",
+          borderTop: "1px solid var(--border)",
+          textAlign: "left",
+        }
+      }}>
+        <div \${{ [css]: { flex: "1 1 0", padding: "32px", borderRight: "1px solid var(--border)" } }}>
+          <h2 \${{ [css]: { fontSize: "24px", fontWeight: "500", color: "var(--text-h)", margin: "0 0 8px" } }}>
+            Documentation
+          </h2>
+          <p>Learn the fundamentals</p>
+          <div \${{ [css]: { display: "flex", gap: "8px", marginTop: "32px" } }}>
+            \${LinkButton("https://hstd.io", "Explore hstd", hstdLogo)}
+            \${LinkButton("https://vite.dev", "Explore Vite", viteLogo)}
+          </div>
+        </div>
+
+        <div \${{ [css]: { flex: "1 1 0", padding: "32px" } }}>
+          <h2 \${{ [css]: { fontSize: "24px", fontWeight: "500", color: "var(--text-h)", margin: "0 0 8px" } }}>
+            Community
+          </h2>
+          <p>Get involved</p>
+          <div \${{ [css]: { display: "flex", gap: "8px", marginTop: "32px" } }}>
+            \${LinkButton("https://github.com/hstd-dev/hstd", "GitHub")}
+            \${LinkButton("https://www.npmjs.com/package/@hstd/std", "npm")}
+          </div>
+        </div>
+      </section>
+
+      <div \${{ [css]: { height: "88px", borderTop: "1px solid var(--border)" } }}></div>
+    </div>
+  \`;
 }
 `;
 
 const mainModule = (ext) => `import "./style.css"
 import { h as html } from "@hstd/std"
-import { setupCounter } from "./counter.${ext}"
-import hstdLogo from "./assets/hstd.svg"
-import viteLogo from "./assets/vite.svg"
+import { App } from "./App.${ext}"
 
-document.querySelector("#app").innerHTML = \`
-<section id="center">
-  <div class="hero">
-    <a href="https://hstd.io" target="_blank">
-      <img src="\${hstdLogo}" class="logo" alt="hstd logo" />
-    </a>
-    <a href="https://vite.dev" target="_blank">
-      <img src="\${viteLogo}" class="logo vite" alt="Vite logo" />
-    </a>
-  </div>
-  <div>
-    <h1>hstd + Vite</h1>
-    <p>Edit <code>src/counter.${ext}</code> and save to test <code>HMR</code></p>
-  </div>
-  <div id="counter"></div>
-</section>
+document.body[html] = App();
 
-<div class="ticks"></div>
-
-<section id="next-steps">
-  <div id="docs">
-    <h2>Documentation</h2>
-    <p>Learn the fundamentals</p>
-    <ul>
-      <li>
-        <a href="https://hstd.io" target="_blank">
-          <img class="button-icon" src="\${hstdLogo}" alt="" />
-          Explore hstd
-        </a>
-      </li>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="button-icon" src="\${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <h2>Community</h2>
-    <p>Get involved</p>
-    <ul>
-      <li><a href="https://github.com/hstd-dev/hstd" target="_blank">GitHub</a></li>
-      <li><a href="https://www.npmjs.com/package/@hstd/std" target="_blank">npm</a></li>
-    </ul>
-  </div>
-</section>
-
-<div class="ticks"></div>
-<section id="spacer"></section>
-\`;
-
-setupCounter(document.querySelector("#counter"));
+if (import.meta.hot) {
+  import.meta.hot.accept("./App.${ext}", (mod) => {
+    document.body[html] = mod.App();
+  });
+}
 `;
 
 const styleCss = `:root {
@@ -142,27 +228,16 @@ const styleCss = `:root {
   --code-bg: #f4f3ec;
   --accent: #646cff;
   --accent-bg: rgba(100, 108, 255, 0.1);
-  --accent-border: rgba(100, 108, 255, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
   color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -174,227 +249,20 @@ const styleCss = `:root {
     --code-bg: #1f2028;
     --accent: #818cf8;
     --accent-bg: rgba(129, 140, 248, 0.15);
-    --accent-border: rgba(129, 140, 248, 0.5);
     --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
   }
 }
 
-body {
-  margin: 0;
-}
-
-h1,
-h2 {
-  font-family: var(--sans);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
-}
+body { margin: 0; }
+p { margin: 0; }
 
 code {
   font-family: var(--mono);
   font-size: 15px;
-  line-height: 135%;
   padding: 4px 8px;
   border-radius: 4px;
   background: var(--code-bg);
   color: var(--text-h);
-}
-
-button {
-  font-family: var(--mono);
-  font-size: 16px;
-  display: inline-flex;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  cursor: pointer;
-  margin-bottom: 24px;
-
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-}
-
-.hero {
-  display: flex;
-  justify-content: center;
-  gap: 32px;
-
-  .logo {
-    height: 96px;
-    transition: filter 0.3s;
-    will-change: filter;
-
-    &:hover {
-      filter: drop-shadow(0 0 16px var(--accent));
-    }
-  }
-  .logo.vite {
-    height: 88px;
-  }
-  @media (max-width: 1024px) {
-    gap: 24px;
-    .logo { height: 72px; }
-    .logo.vite { height: 66px; }
-  }
-}
-
-#app {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-#center {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
-}
-
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
-}
-
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
-}
-
-.ticks {
-  position: relative;
-  width: 100%;
-
-  &::before,
-  &::after {
-    content: "";
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
 }
 `;
 
@@ -474,7 +342,7 @@ async function scaffold() {
 	await write("package.json", packageJson(useTS));
 	await write(".gitignore", gitignore);
 	await write(`src/main.${ext}`, mainModule(ext));
-	await write(`src/counter.${ext}`, counterModule(ext));
+	await write(`src/App.${ext}`, appModule(ext));
 	await write("src/style.css", styleCss);
 	await write("src/assets/hstd.svg", hstdLogoSvg);
 	await write("src/assets/vite.svg", viteSvg);
