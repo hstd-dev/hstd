@@ -35,7 +35,10 @@ document.body[html] = Component();
 Visit live [demo](https://stackblitz.com/edit/web-platform-wikgugv3?devToolsHeight=33&file=src%2FApp.js).
 
 ---
+- **[Getting Started](#getting-started)**
+
 - **[Install](#install)**
+    + [Scaffold with Vite](#scaffold-with-vite)
     + [NPM](#npm)
     + [HTTP](#http)
     + [ImportMap](#importmap)
@@ -50,19 +53,42 @@ Visit live [demo](https://stackblitz.com/edit/web-platform-wikgugv3?devToolsHeig
     + [Property Bundle Reference](#property-bundle-reference)
     + [Derived Pointers](#derived-pointers)
 
+- **[Runtime Validation](#runtime-validation)**
+
 - **[Packages](#packages)**
-    + [**```hstd```**](./pkg/lib/hstd)
-    + [**```@hstd/wc```**](./pkg/lib/@hstd/wc)
+    + [**```@hstd/std```**](./pkg/lib/@hstd/std)
     + [**```@hstd/ts```**](./pkg/lib/@hstd/ts)
+    + [**```@hstd/wc```**](./pkg/lib/@hstd/wc)
+    + [**```create-hstd```**](./pkg/lib/create-hstd)
 - **[License](#license)**
 
 ---
 
+## Getting Started
+
+```sh
+npm create hstd my-app
+cd my-app
+npm install
+npm run dev
+```
+
+Use `--ts` for TypeScript with [@hstd/ts](#hstdts) IntelliSense:
+
+```sh
+npm create hstd my-app --ts
+```
+
 ## Install
+
+### Scaffold with Vite
+```sh
+npm create hstd my-app
+```
 
 ### NPM
 ```sh
-npm i hstd
+npm i @hstd/std
 ```
 
 ### HTTP
@@ -74,7 +100,7 @@ import { $, h as html } from "https://hstd.io";
 ```json
 {
     "imports": {
-        "hstd": "https://hstd.io"
+        "@hstd/std": "https://hstd.io"
     }
 }
 ```
@@ -83,7 +109,7 @@ import { $, h as html } from "https://hstd.io";
 
 ### Class-model
 ```javascript
-import { $, h as html, on, css } from "hstd"
+import { $, h as html, on, css } from "@hstd/std"
 
 const buttonClass = $((alertText) => ({
     [css]: {
@@ -107,7 +133,7 @@ const Main = () => {
 
 ### Interactive binding
 ```javascript
-import { $, h as html, io } from "hstd"
+import { $, h as html, io } from "@hstd/std"
 
 const Linked = () => {
 
@@ -144,7 +170,7 @@ const Canvas = () => {
 
 ### Works with Async Iterator
 ```javascript
-import { $, h as html, io } from "hstd";
+import { $, h as html, io } from "@hstd/std";
 
 
 const Iterated = async function*() {
@@ -183,7 +209,7 @@ document.body[html] = Iterated();
 
 ### Reactive Arrays
 ```javascript
-import { $, h as html, on } from "hstd"
+import { $, h as html, on, io } from "@hstd/std"
 
 const TodoApp = () => {
 
@@ -204,7 +230,7 @@ const TodoApp = () => {
 
 ### Template Literal Pointer
 ```javascript
-import { $, h as html, css } from "hstd"
+import { $, h as html, css } from "@hstd/std"
 
 const Animated = () => {
 
@@ -222,7 +248,7 @@ const Animated = () => {
 
 ### Property Bundle Reference
 ```javascript
-import { $, h as html, css } from "hstd"
+import { $, h as html, css } from "@hstd/std"
 
 const Themed = () => {
 
@@ -247,20 +273,13 @@ const Themed = () => {
 
 ### Derived Pointers
 ```javascript
-import { $, h as html, on } from "hstd"
+import { $, h as html, io } from "@hstd/std"
 
 const Dashboard = () => {
 
     const query = $('');
-
-    // Debounce input by 300ms
     const debounced = query.timeout(300);
-
-    // Derive display text
-    const status = debounced.isit(
-        debounced.into(q => `Searching: ${q}`),
-        "Type to search"
-    );
+    const status = debounced.into(q => q ? `Searching: ${q}` : "Type to search");
 
     return html`
         <input ${{ [io.value]: query, placeholder: "Search..." }}>
@@ -291,19 +310,18 @@ html`<div ${{ [io.value]: ptr }}>…`       // Error: io requires input/textarea
 
 ## Packages
 
-### [```hstd```](./pkg/lib/hstd)
-HyperStandard's fundamental core library.
-### [```@hstd/wc```](./pkg/lib/@hstd/wc)
-HyperStandard-to-WebComponents adapter.
+### [```@hstd/std```](./pkg/lib/@hstd/std)
+HyperStandard standard library — reactive primitives (`$`, `Pointer`, `ArrayPointer`), DOM templating (`h`), and declarative bindings (`on`, `css`, `io`).
+
 ### [```@hstd/ts```](./pkg/lib/@hstd/ts)
-TypeScript language service plugin for HyperStandard. Provides editor-agnostic IntelliSense (works with any editor supporting TypeScript, including vim, neovim, VS Code):
+TypeScript language service plugin for HyperStandard. Editor-agnostic IntelliSense that works with VS Code, vim, neovim, Helix, Zed, and any TypeScript-compatible editor:
 
 - **HTML element completion** inside `h`/`html` tagged templates
 - **CSS property completion** after `css.` and inside `[css]: { }`
 - **DOM event completion** after `on.` and inside `[on]: { }`
 - **IO property completion** after `io.`
 - **`$.this` property completion** with sibling property suggestions
-- **Static diagnostics** for type mismatches (`on`/`css`/`io` value types), position mismatches (body vs attribute), and invalid `io` element targets
+- **Static diagnostics** for type mismatches, position mismatches, and invalid `io` element targets
 
 ```jsonc
 // tsconfig.json
@@ -313,6 +331,21 @@ TypeScript language service plugin for HyperStandard. Provides editor-agnostic I
     }
 }
 ```
+
+### [```@hstd/wc```](./pkg/lib/@hstd/wc)
+HyperStandard-to-WebComponents adapter.
+
+### [```create-hstd```](./pkg/lib/create-hstd)
+Scaffold a Vite + HyperStandard project with function components, `css` bindings, HMR, and light/dark theme support.
+
+```sh
+npm create hstd my-app        # JavaScript
+npm create hstd my-app --ts   # TypeScript + @hstd/ts
+```
+
+## Syntax Highlighting
+
+TextMate grammars (VS Code, Sublime Text) and Tree-sitter queries (neovim, Helix, Zed) are available in [`pkg/vscode`](./pkg/vscode) and [`pkg/tree-sitter-hstd`](./pkg/tree-sitter-hstd).
 
 ## License
 
