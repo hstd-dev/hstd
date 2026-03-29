@@ -1,4 +1,5 @@
 import { Pointer } from "./pointer.js";
+import { createObserver } from "./observer.js";
 
 const
 	ARRAY_PTR_IDENTIFIER = Symbol.for("ARRAY_PTR_IDENTIFIER"),
@@ -16,14 +17,11 @@ const
 
 		const
 			array = [...initialArray],
-			watchers = [],
-			watcherInfo = new WeakMap(),
+			observer = createObserver(),
 			elementPtrs = new Map(),
 
 			notify = (element, index, type = "update") => {
-				watchers.forEach(fn => {
-					if(watcherInfo.get(fn)?.[1]) fn(element, index, type, proxy);
-				});
+				observer.notify(element, index, type, proxy);
 			},
 
 			getElementPtr = (index) => {
@@ -47,19 +45,26 @@ const
 				notify(null, -1, type);
 			},
 
+			// Shared set logic for methods.set and Proxy set handler
+			setAt = (index, value) => {
+				const oldValue = array[index];
+				array[index] = value;
+
+				const ptr = elementPtrs.get(index);
+				if(ptr) ptr.$ = value;
+				if(oldValue !== value) notify(value, index, "set");
+
+				return proxy;
+			},
+
 			methods = {
 
 				watch(watcherFn) {
-					if(watcherFn) watcherInfo.set(watcherFn, [watchers.push(watcherFn) - 1, true]);
-					return proxy;
+					return observer.watch(watcherFn, proxy);
 				},
 
 				abort(watcherFn) {
-					if(watcherFn) {
-						const info = watcherInfo.get(watcherFn);
-						if(info) { info[1] = false; delete watchers[info[0]]; }
-					}
-					return proxy;
+					return observer.abort(watcherFn, proxy);
 				},
 
 				at: (index) => getElementPtr(index < 0 ? array.length + index : index),
@@ -81,16 +86,7 @@ const
 					return (indexA !== -1 && indexB !== -1) ? proxy.swap(indexA, indexB) : proxy;
 				},
 
-				set(index, value) {
-					const oldValue = array[index];
-					array[index] = value;
-
-					const ptr = elementPtrs.get(index);
-					if(ptr) ptr.$ = value;
-					if(oldValue !== value) notify(value, index, "set");
-
-					return proxy;
-				},
+				set: (index, value) => setAt(index, value),
 
 				into(transformerFn = $ => $) {
 					const derived = ArrayPointer(array.map(transformerFn));
@@ -193,13 +189,7 @@ const
 					}
 
 					if(typeof prop === "string" && !isNaN(parseInt(prop))) {
-						const index = parseInt(prop), oldValue = target[index];
-						target[index] = value;
-
-						const ptr = elementPtrs.get(index);
-						if(ptr) ptr.$ = value;
-						if(oldValue !== value) notify(value, index, "set");
-
+						setAt(parseInt(prop), value);
 						return true;
 					}
 
@@ -208,9 +198,6 @@ const
 				}
 			})
 		;
-
-		// methods reference proxy, so bind watch alias after proxy creation
-		methods.watch = methods.watch.bind(null);
 
 		return proxy;
 	}
