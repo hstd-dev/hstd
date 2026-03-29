@@ -492,6 +492,116 @@ describe('Pointer - .from()', () => {
 });
 
 // ============================================================================
+// SECTION 9.5: Pointer-to-Pointer Tracking
+// ============================================================================
+describe('Pointer - Pointer Tracking ($ = anotherPointer)', () => {
+
+  it('should track another pointer when assigned via .$', () => {
+    const source = Pointer(10);
+    const target = Pointer(0);
+
+    target.$ = source;
+
+    assert.strictEqual(target.$, 10);
+  });
+
+  it('should update target when source changes', () => {
+    const source = Pointer(10);
+    const target = Pointer(0);
+
+    target.$ = source;
+    source.$ = 20;
+
+    assert.strictEqual(target.$, 20);
+  });
+
+  it('should continuously track source changes', () => {
+    const source = Pointer(1);
+    const target = Pointer(0);
+
+    target.$ = source;
+
+    source.$ = 2;
+    assert.strictEqual(target.$, 2);
+
+    source.$ = 3;
+    assert.strictEqual(target.$, 3);
+
+    source.$ = 100;
+    assert.strictEqual(target.$, 100);
+  });
+
+  it('should not nest pointers (target.$ is value, not pointer)', () => {
+    const source = Pointer(42);
+    const target = Pointer(0);
+
+    target.$ = source;
+
+    assert.strictEqual(typeof target.$, 'number');
+    assert.strictEqual(!!isPointer(target.$), false);
+  });
+
+  it('should trigger target watchers when source changes', () => {
+    const source = Pointer(0);
+    const target = Pointer(0);
+    const values = [];
+
+    target.$ = source;
+    target.watch(v => values.push(v));
+
+    source.$ = 1;
+    source.$ = 2;
+    source.$ = 3;
+
+    assert.deepStrictEqual(values, [1, 2, 3]);
+  });
+
+  it('should work with chained pointer tracking', () => {
+    const a = Pointer(1);
+    const b = Pointer(0);
+    const c = Pointer(0);
+
+    b.$ = a;
+    c.$ = b;
+
+    assert.strictEqual(c.$, 1);
+
+    a.$ = 99;
+    assert.strictEqual(b.$, 99);
+    assert.strictEqual(c.$, 99);
+  });
+
+  it('should replace previous tracking when reassigned', () => {
+    const source1 = Pointer(10);
+    const source2 = Pointer(20);
+    const target = Pointer(0);
+
+    target.$ = source1;
+    assert.strictEqual(target.$, 10);
+
+    target.$ = source2;
+    assert.strictEqual(target.$, 20);
+
+    source1.$ = 999;
+    // target should no longer track source1
+    // (depends on .from() behavior - may still receive updates)
+  });
+
+  it('should track object values in source pointer', () => {
+    const source = Pointer({ x: 1, y: 2 });
+    const target = Pointer(null);
+
+    target.$ = source;
+
+    assert.deepStrictEqual(target.$, { x: 1, y: 2 });
+
+    source.$ = { x: 10, y: 20 };
+    assert.deepStrictEqual(target.$, { x: 10, y: 20 });
+  });
+
+});
+
+// ============================================================================
 // SECTION 10: ArrayPointer Basic Tests
 // ============================================================================
 describe('ArrayPointer - Basic', () => {

@@ -188,10 +188,14 @@ const
 					set(_, prop, newValue) {
 						if(writable) {
 							if(prop == "$") {
-								const value = setter ? setter(newValue) : newValue;
-								isConstructedFrom(value, Promise)
-									? value.then(resolved => execWatchers(buffer, resolved))
-									: execWatchers(buffer, value);
+								if(isPointer(newValue)) {
+									ptr.from(set => (set(newValue.$), newValue.watch(set)));
+								} else {
+									const value = setter ? setter(newValue) : newValue;
+									isConstructedFrom(value, Promise)
+										? value.then(resolved => execWatchers(buffer, resolved))
+										: execWatchers(buffer, value);
+								}
 							} else {
 								buffer[0][prop] = isPointer(newValue)
 									? newValue.watch($ => buffer[0][prop] = $).$
